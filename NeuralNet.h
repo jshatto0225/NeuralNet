@@ -18,7 +18,7 @@ struct vector
 struct layer
 {
     struct matrix *random_weights;
-    struct vector *bias;
+    struct vector *random_bias;
     int output;
     int input;
 };
@@ -33,7 +33,7 @@ struct neuralnet
 
 void init_layer(struct layer* , int, int, struct matrix*, struct vector*);
 
-void init_neuralnet(struct neuralnet*, int, struct layer*, struct layer*, struct layer);
+void init_neuralnet(struct neuralnet*, int, struct layer*, struct layer*, struct layer*);
 
 void init_random(struct matrix*, int, int );
 

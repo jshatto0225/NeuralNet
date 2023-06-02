@@ -34,8 +34,25 @@ void init_bias(struct vector* bias, int length){
     //allocating random doubles to bias
     for (int i = 0; i < bias->len; i++)
     {   
-        //random biases from [0, 1)s
+        //random biases from [0, 1)
         bias->arr[i]=  (double)(rand() / (RAND_MAX+ 1.0));
     }
+
+}
+
+void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases)
+{
+    //init the layer struct
+    layer = (struct layer*)malloc(sizeof(struct layer));
+
+    //init the inputs and outputs of layer
+    layer->input = input;
+    layer->output = output;
+
+    //init the weights and bias of the layer
+    init_random(weights, input, output);
+    init_bias(biases, input);
+    layer->random_weights = weights;
+    layer->random_bias = biases;
 
 }
