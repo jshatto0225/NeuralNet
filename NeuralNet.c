@@ -19,3 +19,4 @@ void init_random(struct matrix* weights_matrix, int input, int output)
     }
     
 }
+
