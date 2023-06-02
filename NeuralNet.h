@@ -1,0 +1,41 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+matrix multiply(matrix* mat1, matrix* mat2);
+vector multiply(matrix* mat, vector* vec);
+vector add(vector* v1, vector* v2);
+
+
