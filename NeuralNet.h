@@ -37,6 +37,3 @@ void init_bias(struct vector*, int);
 
 void init_random(struct matrix*, int, int);
 
-struct matrix multiply(struct matrix *mat1, struct matrix *mat2);
-struct vector multiply(struct matrix *mat, struct vector *vec);
-struct vector add(struct vector *v1, struct vector *v2);
