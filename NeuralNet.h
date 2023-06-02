@@ -35,7 +35,7 @@ void init_layer(struct layer* , int, int, struct matrix*, struct vector*);
 
 void init_bias(struct vector*, int);
 
-void init_random(struct matrix*, int, int );
+void init_random(struct matrix*, int, int);
 
 struct matrix multiply(struct matrix *mat1, struct matrix *mat2);
 struct vector multiply(struct matrix *mat, struct vector *vec);
