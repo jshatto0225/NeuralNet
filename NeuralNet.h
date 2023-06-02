@@ -37,8 +37,8 @@ void init_neuralnet(struct neuralnet*, int, struct layer*, struct layer*, struct
 
 void init_random(struct matrix*, int, int );
 
-struct matrix multiply(matrix *mat1, matrix *mat2);
-struct vector multiply(matrix *mat, vector *vec);
-struct vector add(vector *v1, vector *v2);
+struct matrix multiply(struct matrix *mat1, struct matrix *mat2);
+struct vector multiply(struct matrix *mat, struct vector *vec);
+struct vector add(struct vector *v1, struct vector *v2);
 
 void init_bias(struct vector*);
