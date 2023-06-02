@@ -2,16 +2,18 @@
 
 void init_random(struct matrix* weights_matrix, int input, int output)
 {
-    //first creating the weight matrix struct
+    //first creating the matrix struct
     weights_matrix = (struct matrix*)malloc(sizeof(struct matrix));
 
     //allocating space for the weight matrix rows
     weights_matrix->arr = (double **)malloc(output * sizeof(double*));
-    for (int i = 0; i < output; i++)
+    weights_matrix->col = input;
+    weights_matrix->row = output;
+    for (int i = 0; i < weights_matrix->row; i++)
     {
         //allocatiog space for cols
         weights_matrix->arr[i] = (double *)malloc(input * sizeof(double));
-        for (int j = 0; j < input; j++)
+        for (int j = 0; j < weights_matrix->col; j++)
         {
             //creaing the random values from [0,1)
             weights_matrix->arr[i][j]= (double)(rand() / (RAND_MAX+ 1.0));
@@ -20,3 +22,20 @@ void init_random(struct matrix* weights_matrix, int input, int output)
     
 }
 
+void init_bias(struct vector* bias, int length){
+    //init the vector struct
+    bias = (struct vector*)malloc(sizeof(struct vector));
+
+    //init the size of vector
+    bias->len = length;
+    //init the bias vector
+    bias->arr = (double *)malloc(sizeof(struct vector)*bias->len);
+    
+    //allocating random doubles to bias
+    for (int i = 0; i < bias->len; i++)
+    {   
+        //random biases from [0, 1)s
+        bias->arr[i]=  (double)(rand() / (RAND_MAX+ 1.0));
+    }
+
+}
