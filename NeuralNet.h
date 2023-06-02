@@ -41,4 +41,4 @@ struct matrix multiply(struct matrix *mat1, struct matrix *mat2);
 struct vector multiply(struct matrix *mat, struct vector *vec);
 struct vector add(struct vector *v1, struct vector *v2);
 
-void init_bias(struct vector*);
+void init_bias(struct vector*, int);
