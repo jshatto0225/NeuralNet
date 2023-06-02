@@ -24,3 +24,9 @@ void init_layer(struct layer *, int, int, struct matrix *, struct vector *);
 void init_bias(struct vector *, int);
 
 void init_random(struct matrix *, int, int);
+
+void free_weight(struct matrix*);
+
+void free_bias(struct vector*);
+
+void free_layer(struct layer*);

@@ -56,3 +56,28 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
     layer->random_bias = biases;
 }
 
+void free_weight(struct matrix* weights)
+{
+    for (int i = 0; i < weights->row; i++)
+    {
+        free(weights->arr[i]);
+    }
+
+    free(weights->arr);
+    free(weights);
+}
+
+void free_bias(struct vector* bias)
+{
+    free(bias->arr);
+    free(bias);
+}
+
+void free_layer(struct layer* layer)
+{
+    free_weight(layer->random_weights);
+
+    free_bias(layer->random_bias);
+
+    free(layer);
+}

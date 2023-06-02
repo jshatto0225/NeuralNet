@@ -21,5 +21,10 @@ int main()
     init_layer(&output, OUTPUT_SIZE,0, &weights4, &bias4);
 
 
+    //freeing allocated space
+    free_layer(&input);
+    free_layer(&hidden1);
+    free_layer(&hidden2);
+    free_layer(&output);
     return 0;
 }
