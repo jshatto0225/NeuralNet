@@ -54,5 +54,5 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
     init_bias(biases, input);
     layer->random_weights = weights;
     layer->random_bias = biases;
-
 }
+
