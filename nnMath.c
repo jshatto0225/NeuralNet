@@ -1,0 +1,5 @@
+#include <nnMath>
+
+int main()
+{
+}
