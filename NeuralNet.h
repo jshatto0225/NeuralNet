@@ -40,5 +40,3 @@ void init_random(struct matrix);
 matrix multiply(matrix *mat1, matrix *mat2);
 vector multiply(matrix *mat, vector *vec);
 vector add(vector *v1, vector *v2);
-
-void init_random(struct matrix);
