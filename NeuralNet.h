@@ -27,4 +27,4 @@ void free_layer(struct matrix*, struct vector*);
 
 void forward(struct vector *result, struct layer *input);
 
-void activation(struct vector *result, struct layer *input);
+void activation(struct vector *result, struct layer *input, int length);

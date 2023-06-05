@@ -55,14 +55,14 @@ void forward(struct vector *result, struct layer* input)
 {
     // TODO: find length of weight_inputs
     struct vector weight_inputs = init_vector(input->random_weights->row);
-    multiply(&weight_inputs, input->random_weights, input->nodes);
+    multiply(&weight_inputs, input->random_weights, &input->nodes);
 
     add(result, &weight_inputs, input->random_bias);
 
     free_vector(&weight_inputs);
 }
 
-struct vector activation(struct layer* input, int length)
+void activation(struct vector *result, struct layer *input, int length)
 {
     int i = 0;
     while (i < length)
@@ -70,12 +70,10 @@ struct vector activation(struct layer* input, int length)
         //make sure its not the first layer bc it already has iputs
         if(i != 0)
         {
-            
-            (input[i].nodes) = forward(&input[i-1]);
-            (input[i].activation) = sigmoid_vector(&input[i].nodes);
+            forward(&input[i].nodes, &input[i-1]);
+            sigmoid_vector(&input[i].activation, &input[i].nodes);
         }
         i++;
     }
-    return (input[length-1].activation);
 }
 
