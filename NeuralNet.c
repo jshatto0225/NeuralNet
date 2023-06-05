@@ -50,7 +50,27 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
     layer->output = output;
 
     //init the weights and bias of the layer
-    init_random(weights, input, output);
+    
+
+    //first creating the matrix struct
+    weights = (struct matrix*)malloc(sizeof(struct matrix));
+
+    //allocating space for the weight matrix rows
+    weights->arr = (double **)malloc(output * sizeof(double*));
+    weights->col = input;
+    weights->row = output;
+    for (int i = 0; i < weights->row; i++)
+    {
+        //allocatiog space for cols
+        weights->arr[i] = (double *)malloc(input * sizeof(double));
+        for (int j = 0; j < weights->col; j++)
+        {
+            //creaing the random values from [0,1)
+            weights->arr[i][j]= (double)(rand() / (RAND_MAX+ 1.0));
+        }
+    }
+
+
     init_bias(biases, input);
     layer->random_weights = weights;
     layer->random_bias = biases;
