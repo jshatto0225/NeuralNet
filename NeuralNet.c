@@ -57,6 +57,11 @@ void free_layer(struct matrix* matrix, struct vector* vector)
 struct vector forward(struct layer* input)
 {
     struct vector weight_inputs = multiply(input->random_weights, input->nodes);
-    
+
     return add(&weight_inputs, input->random_bias);
+}
+
+struct vector activation(struct layer* input)
+{
+    return sigmoid_vector(input->forwardprop);
 }

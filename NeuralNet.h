@@ -8,6 +8,8 @@ struct layer
     struct matrix *random_weights;
     struct vector *random_bias;
     struct vector *nodes;
+    struct vector *forwardprop;
+    struct vector *activation;
     int output;
     int input;
 };
@@ -25,3 +27,5 @@ void init_layer(struct layer *, int, int, struct matrix *, struct vector *, stru
 void free_layer(struct matrix*, struct vector*);
 
 struct vector forward(struct layer*);
+
+struct vector activation(struct layer*);
