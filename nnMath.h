@@ -18,5 +18,8 @@ struct vector
 struct vector multiply(struct matrix *mat, struct vector *vec);
 struct vector add(struct vector *v1, struct vector *v2);
 
-double *allocate_vec(int len);
-double *allocate_mat(int rows, int cols);
+double *allocate_vec_arr(int len);
+double *allocate_mat_arr(int rows, int cols);
+
+struct matrix *allocate_mat();
+struct vector *allocate_vec();
