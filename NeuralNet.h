@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <nnMath.h>
+#include "nnMath.h"
 
 struct layer
 {
@@ -9,6 +9,7 @@ struct layer
     struct vector *random_bias;
     int output;
     int input;
+    double * nodes;
 };
 
 struct neuralnet
@@ -19,14 +20,8 @@ struct neuralnet
     int num_layers;
 };
 
-void init_layer(struct layer *, int, int, struct matrix *, struct vector *);
+void init_layer(struct layer *, int, int, struct matrix *, struct vector *, double*);
 
-void init_bias(struct vector *, int);
+void free_layer(struct matrix*, struct vector*);
 
-void init_random(struct matrix *, int, int);
-
-void free_weight(struct matrix*);
-
-void free_bias(struct vector*);
-
-void free_layer(struct layer*);
+double forward(double* , struct layer);

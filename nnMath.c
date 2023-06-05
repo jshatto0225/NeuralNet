@@ -152,32 +152,44 @@ struct vector hadamard_product(struct vector *vec1, struct vector *vec2)
     return result;
 }
 
-int main()
-{
-    struct vector vec;
-    vec.len = 4;
-    vec.arr = allocate_vec_arr(4);
-    struct matrix mat;
-    mat.row = 6;
-    mat.col = 4;
-    mat.arr = allocate_mat_arr(6, 4);
+// int main()
+// {
+//     struct vector vec;
+//     vec.len = 4;
+//     vec.arr = allocate_vec_arr(4);
+//     struct matrix mat;
+//     mat.row = 6;
+//     mat.col = 4;
+//     mat.arr = allocate_mat_arr(6, 4);
+// int main()
+// {
+//     struct vector vec;
+//     vec.len = 4;
+//     vec.arr = allocate_vec_arr(4);
+//     struct matrix mat;
+//     mat.row = 6;
+//     mat.col = 4;
+//     mat.arr = allocate_mat_arr(6, 4);
 
-    for (int i = 0; i < vec.len; i++)
-    {
-        vec.arr[i] = i;
-    }
+//     for (int i = 0; i < vec.len; i++)
+//     {
+//         vec.arr[i] = i;
+//     }
 
-    int k = 0;
-    for (int i = 0; i < mat.row; i++)
-    {
-        for (int j = 0; j < mat.col; j++)
-        {
-            mat.arr[j + i*mat.col] = k;
-            k++;
-        }
-    }
+//     int k = 0;
+//     for (int i = 0; i < mat.row; i++)
+//     {
+//         for (int j = 0; j < mat.col; j++)
+//         {
+//             mat.arr[j + i*mat.col] = k;
+//             k++;
+//         }
+//     }
 
-    struct matrix sig = sigmoid_matrix(&mat);
+//     struct vector mult = multiply(&mat, &vec);
 
-    print_matrix(&sig);
-}
+//     for (int i = 0; i < mult.len; i++)
+//     {
+//         printf("%lf\n", mult.arr[i]);
+//     }
+// }
