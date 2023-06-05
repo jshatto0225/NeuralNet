@@ -1,5 +1,20 @@
 #include "nnMath.h"
 
+// Gradient descent
+// w is a matrix if weights
+// w' is the new weights
+// b is a vector of biases
+// b' is the new biases
+//
+// n is the learning rate
+// m is the number of samples
+//
+// dC/dw is the derivative of the cost function with respect to the weights
+// dC/db os the derivative of the cost function with respect to the biases 
+//
+// w' = w - (n/m) * sum(all samples) of (dC/dw)
+// b' = b - (n/m) * sum(all samples) of (dC/db)
+
 double *allocate_mat_arr(int row, int col)
 {
     return calloc(row*col, sizeof(double));
@@ -47,6 +62,44 @@ struct vector add(struct vector *v1, struct vector *v2)
     }
 
     return result;
+}
+
+double sigmoid(double val)
+{
+    return 1 / (1 + exp(-1 * val));
+}
+
+struct matrix sigmoid_matrix(struct matrix* mat)
+{
+    struct matrix result;
+    result.row = mat->row;
+    result.col = mat->col;
+    result.arr = allocate_mat_arr(result.row, result.col);
+
+    for (int i = 0; i < mat->row; i++)
+    {
+        for (int j = 0; j < mat->col; j++)
+        {
+            result.arr[j + i * result.col] = sigmoid(mat->arr[j + i*mat->col]);
+        }
+    }
+}
+
+struct matrix dsigmoid_matrix(struct matrix* mat)
+{
+    struct matrix result;
+    result.row = mat->row;
+    result.col = mat->col;
+    result.arr = allocate_mat_arr(result.row, result.col);
+
+    for (int i = 0; i < mat->row; i++)
+    {
+        for (int j = 0; j < mat->col; j++)
+        {
+            double sig = sigmoid(mat->arr[j + i * mat->col]);
+            result.arr[j + i * result.col] = sig * (1 - sig);
+        }
+    }
 }
 
 int main()

@@ -23,3 +23,9 @@ double *allocate_mat_arr(int rows, int cols);
 
 struct matrix *allocate_mat();
 struct vector *allocate_vec();
+
+double sigmoid(double val);
+struct matrix sigmoid_matrix(struct matrix *mat);
+struct matrix dsigmoid(struct matrix* mat);
+struct vector sigmoid_vector(struct vector* vec);
+struct vector dsigmoid_vector(struct vector* vec);
