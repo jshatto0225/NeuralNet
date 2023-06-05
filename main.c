@@ -16,7 +16,7 @@ int main()
     struct vector nodes1, nodes2, nodes3, nodes4;
 
     //"inputting first layer"
-    nodes1.arr = malloc(5 * sizeof(double));
+    nodes1.arr = malloc(10 * sizeof(double));
     for (int i = 0; i < 10; i++)
     {
         nodes1.arr[i] = i;

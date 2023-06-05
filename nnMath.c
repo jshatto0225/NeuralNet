@@ -75,43 +75,31 @@ struct vector*allocate_vec()
     return malloc(sizeof(struct vector));
 }
 
-struct vector multiply(struct matrix *mat, struct vector *vec)
+void multiply(struct vector *result, struct matrix *mat, struct vector *vec)
 {
-    struct vector result = init_vector(mat->row);
-
     for (int i = 0; i < mat->row; i++)
     {
         for (int j = 0; j < mat->col; j++)
         {
-            result.arr[i] += mat->arr[j + i * mat->col] * vec->arr[j];
+            result->arr[i] += mat->arr[j + i * mat->col] * vec->arr[j];
         }
     }
-    
-    return result;
 }
 
-struct vector add(struct vector *v1, struct vector *v2)
+void add(struct vector *result, struct vector *v1, struct vector *v2)
 {
-    struct vector result = init_vector(v1->len);
-
-    for (int i = 0; i < result.len; i++)
+    for (int i = 0; i < result->len; i++)
     {
-        result.arr[i] = v1->arr[i] + v2->arr[i];
+        result->arr[i] = v1->arr[i] + v2->arr[i];
     }
-
-    return result;
 }
 
-struct vector subtract(struct vector *v1, struct vector *v2)
+void subtract(struct vector *result, struct vector *v1, struct vector *v2)
 {
-    struct vector result = init_vector(v1->len);
-
-    for (int i = 0; i < result.len; i++)
+    for (int i = 0; i < result->len; i++)
     {
-        result.arr[i] = v1->arr[i] - v2->arr[i];
+        result->arr[i] = v1->arr[i] - v2->arr[i];
     }
-
-    return result;
 }
 
 double sigmoid(double val)
@@ -119,112 +107,99 @@ double sigmoid(double val)
     return 1 / (1 + exp(-1 * val));
 }
 
-struct matrix sigmoid_matrix(struct matrix* mat)
+void sigmoid_matrix(struct matrix *result, struct matrix* mat)
 {
-    struct matrix result = init_matrix(mat->row, mat->col);
-
     for (int i = 0; i < mat->row; i++)
     {
         for (int j = 0; j < mat->col; j++)
         {
-            result.arr[j + i * result.col] = sigmoid(mat->arr[j + i*mat->col]);
+            result->arr[j + i * result->col] = sigmoid(mat->arr[j + i*mat->col]);
         }
     }
-    return result;
 }
 
-struct matrix dsigmoid_matrix(struct matrix* mat)
+void dsigmoid_matrix(struct matrix *result, struct matrix* mat)
 {
-    struct matrix result = init_matrix(mat->row, mat->col);
-
     for (int i = 0; i < mat->row; i++)
     {
         for (int j = 0; j < mat->col; j++)
         {
             double sig = sigmoid(mat->arr[j + i * mat->col]);
-            result.arr[j + i * result.col] = sig * (1 - sig);
+            result->arr[j + i * result->col] = sig * (1 - sig);
         }
     }
-    return result;
 }
 
-struct vector sigmoid_vector(struct vector* vec)
+void sigmoid_vector(struct vector *result, struct vector* vec)
 {
-    struct vector result = init_vector(vec->len);
-
-    for (int i = 0; i < result.len; i++)
+    for (int i = 0; i < result->len; i++)
     {
-        result.arr[i] = sigmoid(vec->arr[i]);
+        result->arr[i] = sigmoid(vec->arr[i]);
     }
-    return result;
 }
 
-struct vector dsigmoid_vector(struct vector* vec)
+void dsigmoid_vector(struct vector *result, struct vector* vec)
 {
-    struct vector result = init_vector(vec->len);
-
-    for (int i = 0; i < result.len; i++)
+    for (int i = 0; i < result->len; i++)
     {
         double sig = sigmoid(vec->arr[i]);
-        result.arr[i] = sig * (1 - sig);
+        result->arr[i] = sig * (1 - sig);
     }
-    return result;
 }
 
-struct vector hadamard_product(struct vector *vec1, struct vector *vec2)
+void hadamard_product(struct vector *result, struct vector *vec1, struct vector *vec2)
 {
-    struct vector result = init_vector(vec1->len);
-
-    for (int i = 0; i < result.len; i++)
+    for (int i = 0; i < result->len; i++)
     {
-        result.arr[i] = vec1->arr[i] * vec2->arr[i];
+        result->arr[i] = vec1->arr[i] * vec2->arr[i];
     }
-    return result;
 }
 
-struct vector output_error(struct vector *expected_output, 
+void output_error(struct vector *result,
+                            struct vector *expected_output, 
                             struct vector *last_layer_activations, 
                             struct vector *last_layer_weighted)
 {
-    struct vector llw_dsig = dsigmoid_vector(last_layer_weighted);
-    struct vector error = subtract(last_layer_activations, expected_output);
+    struct vector llw_dsig = init_vector(last_layer_weighted->len);
+    dsigmoid_vector(&llw_dsig, last_layer_weighted);
 
-    struct vector result = hadamard_product(&error, &llw_dsig);
+    struct vector error = init_vector(last_layer_activations->len);
+    subtract(&error, last_layer_activations, expected_output);
+
+    hadamard_product(result, &error, &llw_dsig);
 
     free_vector(&llw_dsig);
     free_vector(&error);
-
-    return result;
 }
 
-struct vector layer_error(struct matrix *next_layer_weights,
+void layer_error(struct vector *result, 
+                          struct matrix *next_layer_weights,
                           struct vector *next_layer_error,
                           struct vector *current_layer_weighted)
 {
-    struct vector clw_dsig = dsigmoid_vector(current_layer_weighted);
-    struct matrix nlwT = transpose(next_layer_weights);
-    struct vector product = multiply(&nlwT, next_layer_error);
+    struct vector clw_dsig = init_vector(current_layer_weighted->len);
+    dsigmoid_vector(&clw_dsig, current_layer_weighted);
 
-    struct vector result = hadamard_product(&product, &clw_dsig);
+    struct matrix nlwT = init_matrix(next_layer_weights->col, next_layer_weights->row);
+    transpose(&nlwT, next_layer_weights);
+
+    struct vector product = init_vector(nlwT.row);
+    multiply(&product, &nlwT, next_layer_error);
+
+    hadamard_product(result, &product, &clw_dsig);
 
     free_vector(&clw_dsig);
     free_matrix(&nlwT);
     free_vector(&product);
-
-    return result;
 }
 
-struct matrix transpose(struct matrix* mat)
+void transpose(struct matrix *result, struct matrix* mat)
 {
-    struct matrix result = init_matrix(mat->col, mat->row);
-
-    for (int i = 0; i < result.row; i++)
+    for (int i = 0; i < result->row; i++)
     {
-        for (int j = 0; j < result.col; j++)
+        for (int j = 0; j < result->col; j++)
         {
-            result.arr[j + i * result.col] = mat->arr[i + j * mat->col];
+            result->arr[j + i * result->col] = mat->arr[i + j * mat->col];
         }
     }
-
-    return result;
 }

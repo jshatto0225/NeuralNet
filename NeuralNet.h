@@ -26,6 +26,6 @@ void init_layer(struct layer *, int, int, struct matrix *, struct vector *, stru
 
 void free_layer(struct matrix*, struct vector*);
 
-struct vector forward(struct layer*);
+void forward(struct vector *result, struct layer *input);
 
-struct vector activation(struct layer*);
+void activation(struct vector *result, struct layer *input);

@@ -36,7 +36,7 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
     for (int i = 0; i < biases->len; i++)
     {   
         //random biases from [0, 1)
-        biases->arr[i]=  (double)(rand() / (RAND_MAX+ 1.0));
+        biases->arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
     }
     
     layer->nodes = nodes;
@@ -51,18 +51,18 @@ void free_layer(struct matrix* matrix, struct vector* vector)
     free(vector->arr);
 }
 
-struct vector forward(struct layer* input)
+void forward(struct vector *result, struct layer* input)
 {
-    struct vector weight_inputs = multiply(input->random_weights, input->nodes);
+    // TODO: find length of weight_inputs
+    struct vector weight_inputs = init_vector(input->random_weights->row);
+    multiply(&weight_inputs, input->random_weights, input->nodes);
 
-    struct vector result = add(&weight_inputs, input->random_bias);
+    add(result, &weight_inputs, input->random_bias);
 
     free_vector(&weight_inputs);
-
-    return result;
 }
 
-struct vector activation(struct layer* input)
+void activation(struct vector *result, struct layer* input)
 {
-    return sigmoid_vector(input->forwardprop);
+    sigmoid_vector(result, input->forwardprop);
 }
