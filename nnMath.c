@@ -1,27 +1,39 @@
 #include "nnMath.h"
 #include "utils.h"
 
-// Gradient descent
-// w is a matrix if weights
-// w' is the new weights
-// b is a vector of biases
-// b' is the new biases
-//
+// * is the hadamard product
+// L is the last layer
+// y is a vector of outputs
+// z is the weighted output of a layer
+// a is the activated output of a layer
+// w are the weights of a layer
+// b are the biases of a layer
+// dsigmoid is the derivative of the sigmoud function
+// delta is the error of a layer
+// ^T is the transpose of a matrix
+// l is a layer index
 // n is the learning rate
 // m is the number of samples
+// sum is a summation over all of the samples x
 //
-// dC/dw is the derivative of the cost function with respect to the weights
-// dC/db os the derivative of the cost function with respect to the biases 
+// For each training example x:
+//  Feedforward:
+//      For each layer l:
+//          z(x, l) = w(l)a(x, l+1) = b(l)
+//          a(x, l) = sigmoid(z(x, l))
+//  Output Error:
+//      delta(x, L) = (a(L) - y) * dsigmoid(z(x, L))
+
+//  Backpropogate Error:
+//      For each layer l starting at L:
+//          delta(x, l) = (w(l+1)^T delta(x, l+1)) * dsigmoid(z(x, l))
 //
-// w' = w - (n/m) * sum(all samples) of (dC/dw)
-// b' = b - (n/m) * sum(all samples) of (dC/db)
-//
-// Equations of Backpropogation:
-// L is the current layer
-// * is the hadamard product
-// delta(L) = gradiant(Cost) * dsigmoid(z(L))
-//
-// delta(L) = transpose(w(L+1))delta(L+1) hadamard product dsigmoid
+// Gradient descent
+//  For each layer l starting at L:
+//      w(l) = w(l) - (n/m)sum(delta(x, l)a(x, l-1)^T)
+//      b(l) = b(l) -   (n/m)sum(delta(x, l))
+
+// Store z and a for each layer
 
 double *allocate_mat_arr(int row, int col)
 {
