@@ -1,4 +1,5 @@
 #include "nnMath.h"
+#include "utils.h"
 
 // Gradient descent
 // w is a matrix if weights
@@ -14,6 +15,13 @@
 //
 // w' = w - (n/m) * sum(all samples) of (dC/dw)
 // b' = b - (n/m) * sum(all samples) of (dC/db)
+//
+// Equations of Backpropogation:
+// L is the current layer
+// * is the hadamard product
+// delta(L) = gradiant(Cost) * dsigmoid(z(L))
+//
+// delta(L) = transpose(w(L+1))delta(L+1) hadamard product dsigmoid
 
 double *allocate_mat_arr(int row, int col)
 {
@@ -83,6 +91,7 @@ struct matrix sigmoid_matrix(struct matrix* mat)
             result.arr[j + i * result.col] = sigmoid(mat->arr[j + i*mat->col]);
         }
     }
+    return result;
 }
 
 struct matrix dsigmoid_matrix(struct matrix* mat)
@@ -100,6 +109,47 @@ struct matrix dsigmoid_matrix(struct matrix* mat)
             result.arr[j + i * result.col] = sig * (1 - sig);
         }
     }
+    return result;
+}
+
+struct vector sigmoid_vector(struct vector* vec)
+{
+    struct vector result;
+    result.len = vec->len;
+    result.arr = allocate_vec_arr(result.len);
+
+    for (int i = 0; i < result.len; i++)
+    {
+        result.arr[i] = sigmoid(vec->arr[i]);
+    }
+    return result;
+}
+
+struct vector dsigmoid_vector(struct vector* vec)
+{
+    struct vector result;
+    result.len = vec->len;
+    result.arr = allocate_vec_arr(result.len);
+
+    for (int i = 0; i < result.len; i++)
+    {
+        double sig = sigmoid(vec->arr[i]);
+        result.arr[i] = sig * (1 - sig);
+    }
+    return result;
+}
+
+struct vector hadamard_product(struct vector *vec1, struct vector *vec2)
+{
+    struct vector result;
+    result.len = vec1->len;
+    result.arr = allocate_vec_arr(result.len);
+
+    for (int i = 0; i < result.len; i++)
+    {
+        result.arr[i] = vec1->arr[i] * vec2->arr[i];
+    }
+    return result;
 }
 
 int main()
@@ -127,10 +177,7 @@ int main()
         }
     }
 
-    struct vector mult = multiply(&mat, &vec);
+    struct matrix sig = sigmoid_matrix(&mat);
 
-    for (int i = 0; i < mult.len; i++)
-    {
-        printf("%lf\n", mult.arr[i]);
-    }
+    print_matrix(&sig);
 }

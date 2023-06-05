@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
+
+#ifndef NN_MATH_H
+#define NN_MATH_H
 
 struct matrix
 {
@@ -25,7 +29,13 @@ struct matrix *allocate_mat();
 struct vector *allocate_vec();
 
 double sigmoid(double val);
+
 struct matrix sigmoid_matrix(struct matrix *mat);
 struct matrix dsigmoid(struct matrix* mat);
+
 struct vector sigmoid_vector(struct vector* vec);
 struct vector dsigmoid_vector(struct vector* vec);
+
+struct vector hadamard_product(struct vector *vec1, struct vector *vec2);
+
+#endif
