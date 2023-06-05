@@ -4,7 +4,6 @@
 #include <math.h>
 
 
-
 void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, struct vector *nodes)
 {
 
@@ -39,9 +38,8 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
         //random biases from [0, 1)
         biases->arr[i]=  (double)(rand() / (RAND_MAX+ 1.0));
     }
-
-
-
+    
+    layer->nodes = nodes;
     layer->random_weights = weights;
     layer->random_bias = biases;
 }
