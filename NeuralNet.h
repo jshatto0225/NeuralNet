@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <nnMath.h>
+#include "nnMath.h"
 
 struct layer
 {
@@ -29,4 +29,9 @@ void free_weight(struct matrix*);
 
 void free_bias(struct vector*);
 
-void free_layer(struct layer*);
+void free_layer(struct matrix*, struct vector*);
+
+//activation function
+double sigmoid(double);
+
+double dSigmoid(double);
