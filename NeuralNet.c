@@ -5,7 +5,7 @@
 
 
 
-void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases)
+void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, double *nodes)
 {
 
     //init the inputs and outputs of layer
@@ -51,5 +51,10 @@ void free_layer(struct matrix* matrix, struct vector* vector)
 {
      free(matrix->arr);
     free(vector->arr);
+
+}
+
+double forward(double *arr, struct layer input)
+{
 
 }
