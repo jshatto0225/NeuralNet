@@ -13,7 +13,7 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
 
     //defining the rows and columns of random-weight matrix
     weights->col = input;
-    weights->row = output;
+    weights->row = output; 
 
 
     //allocating space for the weight matrix rows & cols
@@ -72,6 +72,7 @@ struct vector activation(struct layer* input, int length)
         //make sure its not the first layer bc it already has iputs
         if(i != 0)
         {
+            
             (input[i].nodes) = forward(&input[i-1]);
             (input[i].activation) = sigmoid_vector(&input[i].nodes);
         }
