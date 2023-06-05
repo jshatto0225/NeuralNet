@@ -31,7 +31,4 @@ void free_bias(struct vector*);
 
 void free_layer(struct matrix*, struct vector*);
 
-//activation function
-double sigmoid(double);
 
-double dSigmoid(double);

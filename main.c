@@ -22,9 +22,10 @@ int main()
 
 
     //freeing allocated space
-    free_layer(&input);
-    free_layer(&hidden1);
-    free_layer(&hidden2);
-    free_layer(&output);
+    free_layer(&weights1, &bias1);
+    free_layer(&weights2, &bias2);
+    free_layer(&weights3, &bias3);
+    free_layer(&weights4, &bias4);
+    printf("Your code has no errors!\n");
     return 0;
 }
