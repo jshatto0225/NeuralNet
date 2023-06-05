@@ -7,9 +7,8 @@ struct layer
 {
     struct matrix *random_weights;
     struct vector *random_bias;
-    struct vector *nodes;
-    struct vector *forwardprop;
-    struct vector *activation;
+    struct vector nodes;
+    struct vector activation;
     int output;
     int input;
 };

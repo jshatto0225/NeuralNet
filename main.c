@@ -16,7 +16,7 @@ int main()
     struct vector nodes1, nodes2, nodes3, nodes4;
 
     //"inputting first layer"
-    nodes1.arr = malloc(10 * sizeof(double));
+    nodes1.arr = (double *)malloc(10 * sizeof(double));
     for (int i = 0; i < 10; i++)
     {
         nodes1.arr[i] = i;
@@ -27,19 +27,19 @@ int main()
     init_layer(&hidden1, HIDDEN_SIZE,HIDDEN_SIZE, &weights2, &bias2, &nodes2);
     init_layer(&hidden2, HIDDEN_SIZE,OUTPUT_SIZE, &weights3, &bias3, &nodes3);
     init_layer(&output, OUTPUT_SIZE,0, &weights4, &bias4,&nodes4);
+
+
+    struct layer* layers = malloc(4*sizeof(struct layer));
+    layers[0] = input;
+    layers[1] = hidden1;
+    layers[2] = hidden2;
+    layers[3] = output;
  
 
     //training loop
     int epochs = 99;
     for (int epoch = 0; epoch < epochs; epoch++)
     {
-
-        
-
-
-
-
-
 
 
     }
@@ -50,7 +50,8 @@ int main()
     free_layer(&weights2, &bias2);
     free_layer(&weights3, &bias3);
     free_layer(&weights4, &bias4);
-    free(nodes1.arr);
+    free((nodes1.arr));
+    free(layers);
     printf("Your code has no errors!\n");
     return 0;
 }

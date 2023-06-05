@@ -13,7 +13,7 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
 
     //defining the rows and columns of random-weight matrix
     weights->col = input;
-    weights->row = output;
+    weights->row = output; 
 
 
     //allocating space for the weight matrix rows & cols
@@ -39,7 +39,7 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
         biases->arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
     }
     
-    layer->nodes = nodes;
+    layer->nodes = *nodes;
     layer->random_weights = weights;
     layer->random_bias = biases;
 }
@@ -62,7 +62,20 @@ void forward(struct vector *result, struct layer* input)
     free_vector(&weight_inputs);
 }
 
-void activation(struct vector *result, struct layer* input)
+struct vector activation(struct layer* input, int length)
 {
-    sigmoid_vector(result, input->forwardprop);
+    int i = 0;
+    while (i < length)
+    {
+        //make sure its not the first layer bc it already has iputs
+        if(i != 0)
+        {
+            
+            (input[i].nodes) = forward(&input[i-1]);
+            (input[i].activation) = sigmoid_vector(&input[i].nodes);
+        }
+        i++;
+    }
+    return (input[length-1].activation);
 }
+
