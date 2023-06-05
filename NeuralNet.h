@@ -7,9 +7,9 @@ struct layer
 {
     struct matrix *random_weights;
     struct vector *random_bias;
+    struct vector *nodes;
     int output;
     int input;
-    double * nodes;
 };
 
 struct neuralnet
@@ -20,8 +20,8 @@ struct neuralnet
     int num_layers;
 };
 
-void init_layer(struct layer *, int, int, struct matrix *, struct vector *, double*);
+void init_layer(struct layer *, int, int, struct matrix *, struct vector *, struct vector*);
 
 void free_layer(struct matrix*, struct vector*);
 
-double forward(double* , struct layer);
+struct vector forward(struct layer*);

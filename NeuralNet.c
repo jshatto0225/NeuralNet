@@ -5,7 +5,7 @@
 
 
 
-void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, double *nodes)
+void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, struct vector *nodes)
 {
 
     //init the inputs and outputs of layer
@@ -54,7 +54,9 @@ void free_layer(struct matrix* matrix, struct vector* vector)
 
 }
 
-double forward(double *arr, struct layer input)
+struct vector forward(struct layer* input)
 {
-
+    struct vector weight_inputs = multiply(input->random_weights, input->nodes);
+    
+    return add(&weight_inputs, input->random_bias);
 }
