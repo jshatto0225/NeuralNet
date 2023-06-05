@@ -49,16 +49,19 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
 
 void free_layer(struct matrix* matrix, struct vector* vector)
 {
-     free(matrix->arr);
+    free(matrix->arr);
     free(vector->arr);
-
 }
 
 struct vector forward(struct layer* input)
 {
     struct vector weight_inputs = multiply(input->random_weights, input->nodes);
 
-    return add(&weight_inputs, input->random_bias);
+    struct vector result = add(&weight_inputs, input->random_bias);
+
+    free_vector(&weight_inputs);
+
+    return result;
 }
 
 struct vector activation(struct layer* input)

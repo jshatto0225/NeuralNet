@@ -209,7 +209,7 @@ struct vector layer_error(struct matrix *next_layer_weights,
 
     free_vector(&clw_dsig);
     free_matrix(&nlwT);
-    free_matrix(&product);
+    free_vector(&product);
 
     return result;
 }
