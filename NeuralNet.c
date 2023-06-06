@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, struct vector *nodes)
+void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, struct vector *nodes, struct vector *active)
 {
 
     //init the inputs and outputs of layer
@@ -23,12 +23,19 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
     {
         for (int j = 0; j < input; j++)
         {
+            //random vals between [0,1)
             weights->arr[j + i * weights->col] = (double)(rand() / (RAND_MAX+ 1.0));
         }
     }
 
     //init the size of vector
-    biases->len = input;
+    biases->len = output;
+
+    //if its the last layer
+    if (output == 0)
+    {
+        biases->len = input;
+    }
     //init the bias vector
     biases->arr = allocate_vec_arr(biases->len);
     
@@ -39,22 +46,38 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
         biases->arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
     }
     
+    //allocating space for nodes
+
+    nodes->len = input;
+    nodes->arr = calloc(input, sizeof(double));
+
+    active->len = input;
+    active->arr = calloc(input, sizeof(double));
+
+
     layer->nodes = *nodes;
+    layer->activation = *active;
     layer->random_weights = weights;
     layer->random_bias = biases;
 }
 
 
-void free_layer(struct matrix* matrix, struct vector* vector)
+void free_layer(struct matrix* matrix, struct vector* vector, struct vector* node, struct vector* active)
 {
     free(matrix->arr);
     free(vector->arr);
+    free(node->arr);
+    free(active->arr);
 }
 
 void forward(struct vector *result, struct layer* input)
 {
     // TODO: find length of weight_inputs
-    struct vector weight_inputs = init_vector(input->random_weights->row);
+    struct vector weight_inputs;
+    weight_inputs.len = input->random_weights->row;
+    weight_inputs.arr = allocate_vec_arr(input->random_weights->row);
+
+    //example for second layer, [16x10][10x1]+[16x1]
     multiply(&weight_inputs, input->random_weights, &input->nodes);
 
     add(result, &weight_inputs, input->random_bias);
@@ -62,7 +85,7 @@ void forward(struct vector *result, struct layer* input)
     free_vector(&weight_inputs);
 }
 
-void activation(struct vector *result, struct layer *input, int length)
+void activation(struct layer *input, int length)
 {
     int i = 0;
     while (i < length)

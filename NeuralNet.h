@@ -1,3 +1,6 @@
+#ifndef NURAL_NET
+#define NEURAL_NET
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -21,10 +24,12 @@ struct neuralnet
     int num_layers;
 };
 
-void init_layer(struct layer *, int, int, struct matrix *, struct vector *, struct vector*);
+void init_layer(struct layer *, int, int, struct matrix *, struct vector *, struct vector*, struct vector*);
 
-void free_layer(struct matrix*, struct vector*);
+void free_layer(struct matrix*, struct vector*, struct vector*, struct vector*);
 
 void forward(struct vector *result, struct layer *input);
 
-void activation(struct vector *result, struct layer *input, int length);
+void activation(struct layer *input, int length);
+
+#endif

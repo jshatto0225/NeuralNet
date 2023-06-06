@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define INPUT_SIZE 10
-#define HIDDEN_SIZE 16
-#define OUTPUT_SIZE 10
+#define INPUT_SIZE 1
+#define HIDDEN_SIZE 2
+#define OUTPUT_SIZE 1
 
 int main()
 {
@@ -14,21 +14,29 @@ int main()
     struct matrix weights1, weights2, weights3, weights4;
     struct vector bias1, bias2, bias3, bias4;
     struct vector nodes1, nodes2, nodes3, nodes4;
+    struct vector activ1, activ2, activ3, activ4;
+
+    
+    //initalizing them
+    init_layer(&input, INPUT_SIZE,HIDDEN_SIZE, &weights1, &bias1, &nodes1, &activ1);
+    init_layer(&hidden1, HIDDEN_SIZE,HIDDEN_SIZE, &weights2, &bias2, &nodes2, &activ2);
+    init_layer(&hidden2, HIDDEN_SIZE,OUTPUT_SIZE, &weights3, &bias3, &nodes3, &activ3);
+    init_layer(&output, OUTPUT_SIZE,0, &weights4, &bias4,&nodes4, &activ4);
+
+
+    // printf("Weights:\n");
+
+    struct matrix matrix = weights1;
+    struct vector vector = activ2;
+
+
 
     //"inputting first layer"
-    nodes1.arr = (double *)malloc(40 * sizeof(double));
-    for (int i = 0; i < 40; i++)
+    for (int i = 1; i <= INPUT_SIZE; i++)
     {
-        nodes1.arr[i] = i;
+        nodes1.arr[i-1] = i;
     }
-
-
-
-    //initalizing them
-    init_layer(&input, INPUT_SIZE,HIDDEN_SIZE, &weights1, &bias1, &nodes1);
-    init_layer(&hidden1, HIDDEN_SIZE,HIDDEN_SIZE, &weights2, &bias2, &nodes2);
-    init_layer(&hidden2, HIDDEN_SIZE,OUTPUT_SIZE, &weights3, &bias3, &nodes3);
-    init_layer(&output, OUTPUT_SIZE,0, &weights4, &bias4,&nodes4);
+    printf("%lf\n", nodes1.arr[0]);
 
 
     struct layer* layers = malloc(4*sizeof(struct layer));
@@ -42,24 +50,38 @@ int main()
     int epochs = 99;
     for (int epoch = 0; epoch < epochs; epoch++)
     {
-        //forward propagation
-        struct vector y_pred = activation(layers, 4);
-
-        //calculate loss
-        struct vector loss;
-
-        
+        activation(layers, 4);
 
     }   
+
+    
+    
+    for (int i = 0; i < matrix.row; i++)
+    {
+        for (int j = 0; j < matrix.col; j++)
+        {
+            printf("%.2lf, ", matrix.arr[j + i * matrix.col]);
+        }
+        printf("\n");
+    }
+    printf("Weights dim: %d X %d\n", matrix.row, matrix.col);
+
+    printf("Biases:\n");
+        for (int i = 0; i < vector.len; i++)
+        {
+            printf("%.2lf\n", vector.arr[i]);
+        }
+    printf("Bias dim: %d\n", vector.len);
     
 
     //freeing allocated space
-    free_layer(&weights1, &bias1);
-    free_layer(&weights2, &bias2);
-    free_layer(&weights3, &bias3);
-    free_layer(&weights4, &bias4);
-    free((nodes1.arr));
+    free_layer(&weights1, &bias1, &nodes1, &activ1);
+    free_layer(&weights2, &bias2, &nodes2, &activ2);
+    free_layer(&weights3, &bias3, &nodes3, &activ3);
+    free_layer(&weights4, &bias4, &nodes4, &activ4);
     free(layers);
+
+
     printf("Your code has no errors!\n");
     return 0;
 }

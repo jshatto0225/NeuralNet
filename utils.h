@@ -1,5 +1,11 @@
+#ifndef UTILS
+#define UTILS
+
 #include <stdio.h>
 #include "nnMath.h"
+
+
+
 
 void print_matrix(struct matrix *mat)
 {
@@ -19,3 +25,5 @@ void print_vector(struct vector *vec)
         printf("%.2lf\n", vec->arr[i]);
     }
 }
+
+#endif
