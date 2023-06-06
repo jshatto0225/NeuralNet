@@ -100,7 +100,7 @@ void activation(struct layer *input, int length)
     }
 }
 
-void loss_function(struct vector predict, struct vector actual)
+double loss_function(struct vector predict, struct vector actual)
 {
     double sum = 0;
     for (int i = 0; i < predict.len; i++)
