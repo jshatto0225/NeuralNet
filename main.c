@@ -33,17 +33,12 @@ int main()
 
 
 
-    // //"inputting first layer"
-    //     for (int i = 0; i < 40; i++)
-    //     {
-    //         nodes1.arr[i] = X_train[i];
-    //     }
+    //"inputting first layer"
+        for (int i = 0; i < 40; i++)
+        {
+            nodes1.arr[i] = X_train[i];
+        }
 
-
-    for (int i = 0; i < 10; i++)
-    {
-        printf("%lf\t%lf\n", X_train[i], Y_train[i]);
-    }
 
     struct layer* layers = malloc(4*sizeof(struct layer));
     layers[0] = input;
@@ -59,6 +54,13 @@ int main()
         activation(layers, 4);
 
     }   
+
+    
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%lf\n", nodes4.arr[i]);
+    }
+
 
     
     
