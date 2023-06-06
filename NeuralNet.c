@@ -4,6 +4,72 @@
 #include <math.h>
 
 
+void allocate_neural_net(int layers, int* layer_sizes, struct layer** network)
+{
+    *network = (struct layer*)malloc(sizeof(struct layer) * layers);
+
+
+    for(int i = 0; i < layers; i++)
+    {
+        struct layer new_layer;
+
+        if(i > 0)
+        {
+            new_layer.random_weights.row = layer_sizes[i];
+            new_layer.random_weights.col = layer_sizes[i - 1];
+            new_layer.random_weights.arr = (double*)malloc(sizeof(double) * new_layer.random_weights.row * new_layer.random_weights.col);
+
+            for (int i = 0; i < new_layer.random_weights.row; i++)
+            {
+                for (int j = 0; j < new_layer.random_weights.col; j++)
+                {
+                    //random vals between [0,1)
+                    new_layer.random_weights.arr[j + i * new_layer.random_weights.col] = (double)(rand() / (RAND_MAX+ 1.0));
+                }
+            }
+
+        }
+        
+        new_layer.random_bias.len = layer_sizes[i];
+        new_layer.random_bias.arr = (double*)malloc(sizeof(double) * new_layer.random_bias.len);
+        for(int i = 0; i < new_layer.random_bias.len; i++)
+        {
+            new_layer.random_bias.arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
+        }
+
+        new_layer.weighted_outputs.len = layer_sizes[i];
+        new_layer.weighted_outputs.arr = (double*)malloc(sizeof(double) * new_layer.weighted_outputs.len);
+        for(int i = 0; i < new_layer.weighted_outputs.len; i++)
+        {
+            new_layer.weighted_outputs.arr[i] = 0;
+        }
+
+        new_layer.activated_outputs.len = layer_sizes[i];
+        new_layer.activated_outputs.arr = (double*)malloc(sizeof(double) * new_layer.activated_outputs.len);
+        for(int i = 0; i < new_layer.activated_outputs.len; i++)
+        {
+            new_layer.activated_outputs.arr[i] = 0;
+        }
+
+        new_layer.error.len = layer_sizes[i];
+        new_layer.error.arr = (double*)malloc(sizeof(double) * new_layer.error.len);
+        for(int i = 0; i < new_layer.error.len; i++)
+        {
+            new_layer.error.arr[i] = 0;
+        }
+
+        (*network + i)->random_weights = new_layer.random_weights;
+        (*network + i)->random_bias = new_layer.random_bias;
+        (*network + i)->weighted_outputs = new_layer.weighted_outputs;
+        (*network + i)->activated_outputs = new_layer.activated_outputs;
+        (*network + i)->length = layer_sizes[i];
+        (*network + i)->error = new_layer.error;
+
+    }
+}
+/*
+
+
 void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, struct vector *nodes, struct vector *active)
 {
 
@@ -61,15 +127,20 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
     layer->random_bias = biases;
 }
 
-
-void free_layer(struct matrix* matrix, struct vector* vector, struct vector* node, struct vector* active)
+*/
+void free_network(int layers, struct layer** network)
 {
-    free(matrix->arr);
-    free(vector->arr);
-    free(node->arr);
-    free(active->arr);
+    for(int i = 0; i < layers; i++)
+    {
+        free((*network + i)->random_weights.arr);
+        free((*network + i)->random_bias.arr);
+        free((*network + i)->weighted_outputs.arr);
+        free((*network + i)->activated_outputs.arr);
+        free((*network + i)->error.arr);
+    }
+    free(*network);
 }
-
+/*
 void forward(struct vector *result, struct layer* input)
 {
     // TODO: find length of weight_inputs
@@ -100,3 +171,4 @@ void activation(struct layer *input, int length)
     }
 }
 
+*/

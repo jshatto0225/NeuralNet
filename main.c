@@ -6,9 +6,21 @@
 #define INPUT_SIZE 1
 #define HIDDEN_SIZE 2
 #define OUTPUT_SIZE 1
-
+/*
 int main()
 {
+
+    network *net;
+
+    int sizes[] = {2, 5, 10, 11, 1};
+
+    allocate_neural_net(5, sizes, &net);
+
+
+
+
+
+
     //making each layer, weight, and bias
     struct layer input, hidden1, hidden2, output;
     struct matrix weights1, weights2, weights3, weights4;
@@ -83,5 +95,23 @@ int main()
 
 
     printf("Your code has no errors!\n");
+    return 0;
+}
+*/
+
+int main()
+{
+    network net;
+
+    int sizes[] = {1, 2, 1, 1};
+    int layers = 4;
+
+    allocate_neural_net(layers, sizes, &net);
+    printf("allocated\n");
+
+    free_network(layers, &net);
+
+    printf("freed\n");
+
     return 0;
 }
