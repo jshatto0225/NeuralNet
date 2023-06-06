@@ -6,7 +6,7 @@
 
 #define INPUT_SIZE 40
 #define HIDDEN_SIZE 10
-#define OUTPUT_SIZE 1
+#define OUTPUT_SIZE 40
 
 int main()
 {
@@ -33,11 +33,11 @@ int main()
 
 
 
-    //"inputting first layer"
-        for (int i = 0; i < 40; i++)
-        {
-            nodes1.arr[i] = X_train[i];
-        }
+    // //"inputting first layer"
+    //     for (int i = 0; i < 40; i++)
+    //     {
+    //         nodes1.arr[i] = X_train[i];
+    //     }
 
 
     for (int i = 0; i < 10; i++)
