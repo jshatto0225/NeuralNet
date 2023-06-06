@@ -40,10 +40,10 @@ int main()
         }
 
 
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     printf("%lf\t%lf\n", X_train[i], Y_train[i]);
-    // }
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%lf\t%lf\n", X_train[i], Y_train[i]);
+    }
 
     struct layer* layers = malloc(4*sizeof(struct layer));
     layers[0] = input;
