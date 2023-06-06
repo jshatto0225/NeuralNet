@@ -156,9 +156,9 @@ void hadamard_product(struct vector *result, struct vector *vec1, struct vector 
 }
 
 void output_error(struct vector *result,
-                            struct vector *expected_output, 
-                            struct vector *last_layer_activations, 
-                            struct vector *last_layer_weighted)
+                  struct vector *expected_output, 
+                  struct vector *last_layer_activations, 
+                  struct vector *last_layer_weighted)
 {
     struct vector llw_dsig = init_vector(last_layer_weighted->len);
     dsigmoid_vector(&llw_dsig, last_layer_weighted);
