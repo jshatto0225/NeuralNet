@@ -16,11 +16,13 @@ int main()
     struct vector nodes1, nodes2, nodes3, nodes4;
 
     //"inputting first layer"
-    nodes1.arr = (double *)malloc(10 * sizeof(double));
-    for (int i = 0; i < 10; i++)
+    nodes1.arr = (double *)malloc(40 * sizeof(double));
+    for (int i = 0; i < 40; i++)
     {
         nodes1.arr[i] = i;
     }
+
+
 
     //initalizing them
     init_layer(&input, INPUT_SIZE,HIDDEN_SIZE, &weights1, &bias1, &nodes1);
@@ -40,9 +42,15 @@ int main()
     int epochs = 99;
     for (int epoch = 0; epoch < epochs; epoch++)
     {
+        //forward propagation
+        struct vector y_pred = activation(layers, 4);
 
+        //calculate loss
+        struct vector loss;
 
-    }
+        
+
+    }   
     
 
     //freeing allocated space
