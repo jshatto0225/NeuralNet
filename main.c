@@ -5,7 +5,7 @@
 #include "dataset.h"
 
 #define INPUT_SIZE 40
-#define HIDDEN_SIZE 2
+#define HIDDEN_SIZE 10
 #define OUTPUT_SIZE 1
 
 int main()
