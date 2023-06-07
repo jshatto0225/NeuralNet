@@ -36,4 +36,6 @@ void forward(struct vector *result, struct layer *input);
 
 void activation(struct layer *input, int length);
 
+void loss(struct vector , struct vector);
+
 #endif

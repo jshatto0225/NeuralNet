@@ -171,4 +171,15 @@ void activation(struct layer *input, int length)
     }
 }
 
+
 */
+double loss_function(struct vector predict, struct vector actual)
+{
+    double sum = 0;
+    for (int i = 0; i < predict.len; i++)
+    {
+        sum = fabs(predict.arr[i] - actual.arr[i]);
+    }
+    return sum / predict.len;
+}
+
