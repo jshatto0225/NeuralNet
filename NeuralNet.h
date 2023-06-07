@@ -8,17 +8,17 @@
 
 typedef struct
 {
-    struct matrix random_weights;
-    struct vector random_bias;
-    struct vector weighted_outputs;
-    struct vector activated_outputs;
-    struct vector error;
+    matrix_t random_weights;
+    vector_t random_bias;
+    vector_t weighted_outputs;
+    vector_t activated_outputs;
+    vector_t error;
     int length;
-};
+} layer_t;
 
-typedef struct layer* network;
+typedef layer_t* network;
 
-struct neuralnet
+typedef struct neuralnet
 {
     layer_t *layers;
     layer_t input;
@@ -26,11 +26,11 @@ struct neuralnet
     int num_layers;
 } neural_net_t;
 
-void allocate_neural_net(int, int*, struct layer**);
+void allocate_neural_net(int, int*, layer_t**);
 
-void init_layer(struct layer *, int, int, struct matrix *, struct vector *, struct vector*, struct vector*);
+void init_layer(layer_t *, int, int, matrix_t *, vector_t *, vector_t*, vector_t*);
 
-void free_network(int, struct layer**);
+void free_network(int, layer_t**);
 
 void forward(vector_t *result, layer_t *input);
 

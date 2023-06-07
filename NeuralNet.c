@@ -4,14 +4,14 @@
 #include <math.h>
 
 
-void allocate_neural_net(int layers, int* layer_sizes, struct layer** network)
+void allocate_neural_net(int layers, int* layer_sizes, layer_t** network)
 {
-    *network = (struct layer*)malloc(sizeof(struct layer) * layers);
+    *network = (struct layer*)malloc(sizeof(layer_t) * layers);
 
 
     for(int i = 0; i < layers; i++)
     {
-        struct layer new_layer;
+        layer_t new_layer;
 
         if(i > 0)
         {
@@ -194,7 +194,7 @@ void init_layer(layer_t* layer, int input, int output, matrix_t *weights, vector
 }
 
 */
-void free_network(int layers, struct layer** network)
+void free_network(int layers, layer_t** network)
 {
     for(int i = 0; i < layers; i++)
     {
@@ -211,13 +211,13 @@ void forward(vector_t *result, layer_t *input)
 {
     // TODO: find length of weight_inputs
     vector_t weight_inputs;
-    weight_inputs.len = input->random_weights->row;
-    weight_inputs.arr = allocate_vec_arr(input->random_weights->row);
+    weight_inputs.len = input->random_weights.row;
+    weight_inputs.arr = allocate_vec_arr(input->random_weights.row);
 
     //example for second layer, [16x10][10x1]+[16x1]
-    multiply(&weight_inputs, input->random_weights, &input->nodes);
+    multiply(&weight_inputs, &input->random_weights, &input->weighted_outputs);
 
-    add(result, &weight_inputs, input->random_bias);
+    add(result, &weight_inputs, &input->random_bias);
 
     free_vector(&weight_inputs);
 }
@@ -230,8 +230,8 @@ void activation(layer_t *input, int length)
         //make sure its not the first layer bc it already has iputs
         if(i != 0)
         {
-            forward(&input[i].nodes, &input[i-1]);
-            sigmoid_vector(&input[i].activation, &input[i].nodes);
+            forward(&input[i].weighted_outputs, &input[i-1]);
+            sigmoid_vector(&input[i].activated_outputs, &input[i].weighted_outputs);
         }
         i++;
     }
