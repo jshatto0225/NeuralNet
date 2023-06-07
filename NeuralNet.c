@@ -4,7 +4,7 @@
 #include <math.h>
 
 
-void init_layer(struct layer* layer, int input, int output, struct matrix *weights, struct vector *biases, struct vector *nodes, struct vector *active)
+void init_layer(layer_t* layer, int input, int output, matrix_t *weights, vector_t *biases, vector_t *nodes, vector_t *active)
 {
 
     //init the inputs and outputs of layer
@@ -13,7 +13,7 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
 
     //defining the rows and columns of random-weight matrix
     weights->col = input;
-    weights->row = output; 
+    weights->row = output;
 
 
     //allocating space for the weight matrix rows & cols
@@ -62,7 +62,7 @@ void init_layer(struct layer* layer, int input, int output, struct matrix *weigh
 }
 
 
-void free_layer(struct matrix* matrix, struct vector* vector, struct vector* node, struct vector* active)
+void free_layer(matrix_t* matrix, vector_t* vector, vector_t* node, vector_t* active)
 {
     free(matrix->arr);
     free(vector->arr);
@@ -70,10 +70,10 @@ void free_layer(struct matrix* matrix, struct vector* vector, struct vector* nod
     free(active->arr);
 }
 
-void forward(struct vector *result, struct layer* input)
+void forward(vector_t *result, layer_t *input)
 {
     // TODO: find length of weight_inputs
-    struct vector weight_inputs;
+    vector_t weight_inputs;
     weight_inputs.len = input->random_weights->row;
     weight_inputs.arr = allocate_vec_arr(input->random_weights->row);
 
@@ -85,7 +85,7 @@ void forward(struct vector *result, struct layer* input)
     free_vector(&weight_inputs);
 }
 
-void activation(struct layer *input, int length)
+void activation(layer_t *input, int length)
 {
     int i = 0;
     while (i < length)
@@ -100,13 +100,13 @@ void activation(struct layer *input, int length)
     }
 }
 
-double loss_function(struct vector predict, struct vector actual)
+double loss_function(vector_t *predict, vector_t *actual)
 {
     double sum = 0;
-    for (int i = 0; i < predict.len; i++)
+    for (int i = 0; i < predict->len; i++)
     {
-        sum = fabs(predict.arr[i] - actual.arr[i]);
+        sum = fabs(predict->arr[i] - actual->arr[i]);
     }
-    return sum / predict.len;
+    return sum / predict->len;
 }
 

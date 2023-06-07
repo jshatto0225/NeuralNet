@@ -11,11 +11,11 @@
 int main()
 {
     //making each layer, weight, and bias
-    struct layer input, hidden1, hidden2, output;
-    struct matrix weights1, weights2, weights3, weights4;
-    struct vector bias1, bias2, bias3, bias4;
-    struct vector nodes1, nodes2, nodes3, nodes4;
-    struct vector activ1, activ2, activ3, activ4;
+    layer_t input, hidden1, hidden2, output;
+    matrix_t weights1, weights2, weights3, weights4;
+    vector_t bias1, bias2, bias3, bias4;
+    vector_t nodes1, nodes2, nodes3, nodes4;
+    vector_t activ1, activ2, activ3, activ4;
 
     double *X_train = x_train();
     double *Y_train = y_train(X_train);
@@ -28,8 +28,8 @@ int main()
 
 
     // printf("Weights:\n");
-    struct matrix matrix = weights1;
-    struct vector vector = activ4;
+    matrix_t matrix = weights1;
+    vector_t vector = activ4;
 
 
 
@@ -40,7 +40,7 @@ int main()
         }
 
 
-    struct layer* layers = malloc(4*sizeof(struct layer));
+    layer_t* layers = malloc(4*sizeof(layer_t));
     layers[0] = input;
     layers[1] = hidden1;
     layers[2] = hidden2;

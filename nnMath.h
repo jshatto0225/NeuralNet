@@ -6,70 +6,70 @@
 #ifndef NN_MATH_H
 #define NN_MATH_H
 
-struct matrix
+typedef struct
 {
     double *arr;
     int row;
     int col;
-};
+} matrix_t;
 
-struct vector
+typedef struct
 {
     double *arr;
     int len;
-};
+} vector_t;
 
 // Allocates space of a matrix and a vector
-struct vector init_vector(int len);
-struct matrix init_matrix(int row, int col);
+vector_t init_vector(int len);
+matrix_t init_matrix(int row, int col);
 double *allocate_vec_arr(int len);
 double *allocate_mat_arr(int rows, int cols);
-struct matrix *allocate_mat();
-struct vector *allocate_vec();
+matrix_t *allocate_mat();
+vector_t *allocate_vec();
 
 // Frees memory for matrices and vectors
-void free_vector(struct vector *vec);
-void free_matrix(struct matrix *mat);
+void free_vector(vector_t *vec);
+void free_matrix(matrix_t *mat);
 
 // Multiply a matrix with a vector
-void multiply(struct vector *result, struct matrix *mat, struct vector *vec);
+void multiply(vector_t *result, matrix_t *mat, vector_t *vec);
 // Add two vectors
-void add(struct vector *result, struct vector *v1, struct vector *v2);
+void add(vector_t *result, vector_t *v1, vector_t *v2);
 // Subtract two vectors
-void subtract(struct vector *result, struct vector *v1, struct vector *v2);
+void subtract(vector_t *result, vector_t *v1, vector_t *v2);
 
 // Sigmoid of a single value
 double sigmoid(double val);
 
 // Sigmoid of a matrix
-void sigmoid_matrix(struct matrix *result, struct matrix *mat);
+void sigmoid_matrix(matrix_t *result, matrix_t *mat);
 // Sigmoid derivative of a matrix
-void dsigmoid(struct matrix *result, struct matrix *mat);
+void dsigmoid(matrix_t *result, matrix_t *mat);
 
 // Sigmoid of a vector
-void sigmoid_vector(struct vector *result, struct vector *vec);
+void sigmoid_vector(vector_t *result, vector_t *vec);
 // Sigmoid derivative of a vector
-void dsigmoid_vector(struct vector *result, struct vector *vec);
+void dsigmoid_vector(vector_t *result, vector_t *vec);
 
-void hadamard_product(struct vector *result, struct vector *vec1, struct vector *vec2);
+void hadamard_product(vector_t *result, vector_t *vec1, vector_t *vec2);
 
 // Gets the error at the output layer
 // last_layer_activations - output of last layer after sigmoid
 // last_layer_weighted - output of last layer before sigmoid
-void output_error(struct vector *result,
-                  struct vector *expected_output,
-                  struct vector *last_layer_activations,
-                  struct vector *last_layer_weighted);
+void output_error(vector_t *result,
+                  vector_t *expected_output,
+                  vector_t *last_layer_activations,
+                  vector_t *last_layer_weighted);
 
-void transpose(struct matrix *result, struct matrix *mat);
+void transpose(matrix_t *result, matrix_t *mat);
 
 // Gets the error of all layers except output
 // next_layer_weights - weights of next layer
 // next_layer_error - error of the next layer
 // output of the current layer before sigmoid
-void layer_error(struct vector *result,
-                 struct matrix *next_layer_weights,
-                 struct vector *next_layer_error,
-                 struct vector *current_layer_weighted);
+void layer_error(vector_t *result,
+                 matrix_t *next_layer_weights,
+                 vector_t *next_layer_error,
+                 vector_t *current_layer_weighted);
 
 #endif

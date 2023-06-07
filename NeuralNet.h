@@ -6,32 +6,32 @@
 #include <math.h>
 #include "nnMath.h"
 
-struct layer
+typedef struct
 {
-    struct matrix *random_weights;
-    struct vector *random_bias;
-    struct vector nodes;
-    struct vector activation;
+    matrix_t *random_weights;
+    vector_t *random_bias;
+    vector_t nodes;
+    vector_t activation;
     int output;
     int input;
-};
+} layer_t;
 
-struct neuralnet
+typedef struct
 {
-    struct layer *layers;
-    struct layer input;
-    struct layer output;
+    layer_t *layers;
+    layer_t input;
+    layer_t output;
     int num_layers;
-};
+} neural_net_t;
 
-void init_layer(struct layer *, int, int, struct matrix *, struct vector *, struct vector*, struct vector*);
+void init_layer(layer_t *, int, int, matrix_t *, vector_t *, vector_t*, vector_t*);
 
-void free_layer(struct matrix*, struct vector*, struct vector*, struct vector*);
+void free_layer(matrix_t*, vector_t*, vector_t*, vector_t*);
 
-void forward(struct vector *result, struct layer *input);
+void forward(vector_t *result, layer_t *input);
 
-void activation(struct layer *input, int length);
+void activation(layer_t *input, int length);
 
-void loss(struct vector , struct vector);
+void loss(vector_t *, vector_t*);
 
 #endif

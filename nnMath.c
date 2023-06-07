@@ -33,25 +33,25 @@
 //      w(l) = w(l) - (n/m)sum(delta(x, l)a(x, l-1)^T)
 //      b(l) = b(l) -   (n/m)sum(delta(x, l))
 
-struct vector init_vector(int len)
+vector_t init_vector(int len)
 {
-    struct vector vec;
+    vector_t vec;
     vec.len = len;
     vec.arr = allocate_vec_arr(vec.len);
 }
-struct matrix init_matrix(int row, int col)
+matrix_t init_matrix(int row, int col)
 {
-    struct matrix mat;
+    matrix_t mat;
     mat.row = row;
     mat.col = col;
     mat.arr = allocate_mat_arr(mat.row, mat.col);
 }
 
-void free_vector(struct vector *vec)
+void free_vector(vector_t *vec)
 {
     free(vec->arr);
 }
-void free_matrix(struct matrix *mat)
+void free_matrix(matrix_t *mat)
 {
     free(mat->arr);
 }
@@ -65,17 +65,17 @@ double *allocate_vec_arr(int len)
     return calloc(len, sizeof(double));
 }
 
-struct matrix *allocate_mat()
+matrix_t *allocate_mat()
 {
-    return malloc(sizeof(struct matrix));
+    return malloc(sizeof(matrix_t));
 }
 
-struct vector*allocate_vec()
+vector_t *allocate_vec()
 {
-    return malloc(sizeof(struct vector));
+    return malloc(sizeof(vector_t));
 }
 
-void multiply(struct vector *result, struct matrix *mat, struct vector *vec)
+void multiply(vector_t *result, matrix_t *mat, vector_t *vec)
 {
     for (int i = 0; i < mat->row; i++)
     {
@@ -86,7 +86,7 @@ void multiply(struct vector *result, struct matrix *mat, struct vector *vec)
     }
 }
 
-void add(struct vector *result, struct vector *v1, struct vector *v2)
+void add(vector_t *result, vector_t *v1, vector_t *v2)
 {
     for (int i = 0; i < result->len; i++)
     {
@@ -94,7 +94,7 @@ void add(struct vector *result, struct vector *v1, struct vector *v2)
     }
 }
 
-void subtract(struct vector *result, struct vector *v1, struct vector *v2)
+void subtract(vector_t *result, vector_t *v1, vector_t *v2)
 {
     for (int i = 0; i < result->len; i++)
     {
@@ -107,7 +107,7 @@ double sigmoid(double val)
     return 1 / (1 + exp(-1 * val));
 }
 
-void sigmoid_matrix(struct matrix *result, struct matrix* mat)
+void sigmoid_matrix(matrix_t *result, matrix_t* mat)
 {
     for (int i = 0; i < mat->row; i++)
     {
@@ -118,7 +118,7 @@ void sigmoid_matrix(struct matrix *result, struct matrix* mat)
     }
 }
 
-void dsigmoid_matrix(struct matrix *result, struct matrix* mat)
+void dsigmoid_matrix(matrix_t *result, matrix_t* mat)
 {
     for (int i = 0; i < mat->row; i++)
     {
@@ -130,7 +130,7 @@ void dsigmoid_matrix(struct matrix *result, struct matrix* mat)
     }
 }
 
-void sigmoid_vector(struct vector *result, struct vector* vec)
+void sigmoid_vector(vector_t *result, vector_t* vec)
 {
     for (int i = 0; i < result->len; i++)
     {
@@ -138,7 +138,7 @@ void sigmoid_vector(struct vector *result, struct vector* vec)
     }
 }
 
-void dsigmoid_vector(struct vector *result, struct vector* vec)
+void dsigmoid_vector(vector_t *result, vector_t* vec)
 {
     for (int i = 0; i < result->len; i++)
     {
@@ -147,7 +147,7 @@ void dsigmoid_vector(struct vector *result, struct vector* vec)
     }
 }
 
-void hadamard_product(struct vector *result, struct vector *vec1, struct vector *vec2)
+void hadamard_product(vector_t *result, vector_t *vec1, vector_t *vec2)
 {
     for (int i = 0; i < result->len; i++)
     {
@@ -155,15 +155,15 @@ void hadamard_product(struct vector *result, struct vector *vec1, struct vector 
     }
 }
 
-void output_error(struct vector *result,
-                  struct vector *expected_output, 
-                  struct vector *last_layer_activations, 
-                  struct vector *last_layer_weighted)
+void output_error(vector_t *result,
+                  vector_t *expected_output, 
+                  vector_t *last_layer_activations, 
+                  vector_t *last_layer_weighted)
 {
-    struct vector llw_dsig = init_vector(last_layer_weighted->len);
+    vector_t llw_dsig = init_vector(last_layer_weighted->len);
     dsigmoid_vector(&llw_dsig, last_layer_weighted);
 
-    struct vector error = init_vector(last_layer_activations->len);
+    vector_t error = init_vector(last_layer_activations->len);
     subtract(&error, last_layer_activations, expected_output);
 
     hadamard_product(result, &error, &llw_dsig);
@@ -172,18 +172,18 @@ void output_error(struct vector *result,
     free_vector(&error);
 }
 
-void layer_error(struct vector *result, 
-                          struct matrix *next_layer_weights,
-                          struct vector *next_layer_error,
-                          struct vector *current_layer_weighted)
+void layer_error(vector_t *result, 
+                          matrix_t *next_layer_weights,
+                          vector_t *next_layer_error,
+                          vector_t *current_layer_weighted)
 {
-    struct vector clw_dsig = init_vector(current_layer_weighted->len);
+    vector_t clw_dsig = init_vector(current_layer_weighted->len);
     dsigmoid_vector(&clw_dsig, current_layer_weighted);
 
-    struct matrix nlwT = init_matrix(next_layer_weights->col, next_layer_weights->row);
+    matrix_t nlwT = init_matrix(next_layer_weights->col, next_layer_weights->row);
     transpose(&nlwT, next_layer_weights);
 
-    struct vector product = init_vector(nlwT.row);
+    vector_t product = init_vector(nlwT.row);
     multiply(&product, &nlwT, next_layer_error);
 
     hadamard_product(result, &product, &clw_dsig);
@@ -193,7 +193,7 @@ void layer_error(struct vector *result,
     free_vector(&product);
 }
 
-void transpose(struct matrix *result, struct matrix* mat)
+void transpose(matrix_t *result, matrix_t* mat)
 {
     for (int i = 0; i < result->row; i++)
     {
