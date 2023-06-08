@@ -80,4 +80,6 @@ void subtract_mat(matrix_t *out, matrix_t *mat1, matrix_t *mat2);
 
 void scalar_multiply_vec(vector_t *out, vector_t *vec, double scalar);
 
+void add_mat(matrix_t *out, matrix_t *mat1, matrix_t *mat2);
+
 #endif

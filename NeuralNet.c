@@ -144,10 +144,31 @@ void train(neural_net_t *network, matrix_t *inputs, matrix_t *expected_outputs,
            int epochs, int batch_size, double learning_rate,
            matrix_t *test_inputs, matrix_t *test_expected_outputs)
 {
+    printf("\n");
+    matrix_t temp_weights[network->num_layers];
+    for (int i = 1; i < network->num_layers; i++)
+    {
+        temp_weights[i] = init_matrix(network->layers[i].weights.row, network->layers[i].weights.col);
+        for (int k = 0; k < network->layers[i].weights.row; k++)
+        {
+            for (int l = 0; l < network->layers[i].weights.col; l++)
+            {
+                temp_weights[i].arr[l + k * temp_weights[i].col] = 0;
+            }
+        }
+    }
+    vector_t temp_biases[network->num_layers];
+    for (int i = 1; i < network->num_layers; i++)
+    {
+        temp_biases[i] = init_vector(network->layers[i].biases.len);
+        for (int k = 0; k < network->layers[i].biases.len; k++)
+        {
+            temp_biases[i].arr[k] = 0;
+        }
+    }
     for (int i = 0; i < epochs; i++)
     {
         printf("Starting epoch %d\n", i);
-        // TODO: Implement batch training
         for (int j = 0; j < inputs->row; j++)
         {
             for (int k = 0; k < inputs->col; k++)
@@ -161,28 +182,83 @@ void train(neural_net_t *network, matrix_t *inputs, matrix_t *expected_outputs,
             }
             forward_pass(network);
             backward_pass(network, &expected_outputs2);
-            update_weights(network, learning_rate);
+            free_vector(&expected_outputs2);
+            update_temp_weights(temp_weights, network, learning_rate);
+            update_temp_biases(temp_biases, network, learning_rate);
+
+            if (j % batch_size == 0 || j == inputs->row - 1)
+            {
+                update_weights(network, temp_weights, batch_size, learning_rate);
+                update_biases(network, temp_biases, batch_size, learning_rate);
+                for (int a = 1; a < network->num_layers - 1; a++)
+                {
+                    for (int b = 0; b < network->layers[a].weights.row; b++)
+                    {
+                        for (int c = 0; c < network->layers[a].weights.col; c++)
+                        {
+                            temp_weights[a].arr[c + b * temp_weights[a].col] = 0;
+                        }
+                    }
+                }
+                for (int a = 1; a < network->num_layers - 1; a++)
+                {
+                    for (int b = 0; b < network->layers[a].biases.len; b++)
+                    {
+                        temp_biases[a].arr[b] = 0;
+                    }
+                }
+            }
+        }
+        if(i % 10 == 0)
+        {
+            test(network, test_inputs, test_expected_outputs);
         }
     }
+    printf("Training complete\n");
+    printf("Testing network...\n");
     test(network, test_inputs, test_expected_outputs);
+
+    for (int i = 1; i < network->num_layers; i++)
+    {
+        free_matrix(&temp_weights[i]);
+        free_vector(&temp_biases[i]);
+    }
 }
 
-void update_weights(neural_net_t *network, double learning_rate)
+void update_biases(neural_net_t *network, vector_t *temp_biases, int batch_size, double learning_rate)
 {
-    for (int i = network->num_layers - 1; i > 0; i--)
+    for (int i = 1; i < network->num_layers; i++)
     {
-        matrix_t weights_product = init_matrix(network->layers[i].error.len, network->layers[i - 1].activated_outputs.len);
-        multiply_vec_vec(&weights_product, &network->layers[i].error, &network->layers[i - 1].activated_outputs);
-        scalar_multiply_mat(&weights_product, &weights_product, learning_rate);
-        subtract_mat(&network->layers[i].weights, &network->layers[i].weights, &weights_product);
+        scalar_multiply_vec(&temp_biases[i], &temp_biases[i], learning_rate / (double)batch_size);
+        subtract_vec(&network->layers[i].biases, &network->layers[i].biases, &temp_biases[i]);
+    }
+}
 
-        free_matrix(&weights_product);
+void update_temp_biases(vector_t *biases, neural_net_t *net, double learning_rate)
+{
+    for (int i = net->num_layers - 1; i > 0; i--)
+    {
+        add_vec(&biases[i], &biases[i], &net->layers[i].error);
+    }
+}
 
-        vector_t bias_product = init_vector(network->layers[i].error.len);
-        scalar_multiply_vec(&bias_product, &network->layers[i].error, learning_rate);
-        subtract_vec(&network->layers[i].biases, &network->layers[i].biases, &bias_product);
+void update_temp_weights(matrix_t *weights, neural_net_t *net, double learning_rate)
+{
+    for (int i = net->num_layers - 1; i > 0; i--)
+    {
+        matrix_t grad = init_matrix(net->layers[i].weights.row, net->layers[i].weights.col);
+        multiply_vec_vec(&grad, &net->layers[i].error, &net->layers[i - 1].activated_outputs);
+        add_mat(&weights[i], &weights[i], &grad);
+        free_matrix(&grad);
+    }
+}
 
-        free_vector(&bias_product);
+void update_weights(neural_net_t *net, matrix_t *temp_weights, int batch_size, double learning_rate)
+{
+    for (int i = 1; i < net->num_layers; i++)
+    {
+        scalar_multiply_mat(&temp_weights[i], &temp_weights[i], learning_rate / (double)batch_size);
+        subtract_mat(&net->layers[i].weights, &net->layers[i].weights, &temp_weights[i]);
     }
 }
 
@@ -211,6 +287,8 @@ void test(neural_net_t *network, matrix_t *inputs, matrix_t *expected_outputs)
         }
     }
     printf("Accuracy: %d / 10000\n", sum);
+
+    free_matrix(&network_output);
 }
 
 void print_matrix(matrix_t *mat)

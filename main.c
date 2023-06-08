@@ -58,13 +58,12 @@ void load_mnist_matrix_vector(matrix_t *x_train, matrix_t *y_train, matrix_t *x_
 int main()
 {
     srand(time(NULL));
-    printf("Time: %ld\n", time(NULL));
 
-    int sizes[] = {784, 16, 16, 10};
+    int sizes[] = {784, 30, 10};
 
     load_mnist();
 
-    neural_net_t net = allocate_neural_net(4, sizes);
+    neural_net_t net = allocate_neural_net(3, sizes);
     printf("Allocated Network\n");
 
     // TODO: Shuffle data
@@ -80,8 +79,8 @@ int main()
     load_mnist_matrix_vector(&x_train, &y_train, &x_test, &y_test);
     printf("Loaded MNIST\n");
 
-    printf("Training...\n");
-    train(&net, &x_train, &y_train, 30, 10, 0.8, &x_test, &y_test);
+    printf("\nTraining...\n");
+    train(&net, &x_train, &y_train, 3, 10, 3.0, &x_test, &y_test);
     printf("Trained\n");
 
     free_network(&net);

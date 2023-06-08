@@ -247,3 +247,14 @@ void scalar_multiply_vec(vector_t *out, vector_t *vec, double scalar)
         out->arr[i] = vec->arr[i] * scalar;
     }
 }
+
+void add_mat(matrix_t *out, matrix_t *mat1, matrix_t *mat2)
+{
+    for (int i = 0; i < out->row; i++)
+    {
+        for (int j = 0; j < out->col; j++)
+        {
+            out->arr[j + i * out->col] = mat1->arr[j + i * mat1->col] + mat2->arr[j + i * mat2->col];
+        }
+    }
+}
