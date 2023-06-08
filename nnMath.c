@@ -1,5 +1,4 @@
 #include "nnMath.h"
-#include "utils.h"
 
 // * is the hadamard product
 // L is the last layer
@@ -38,6 +37,8 @@ vector_t init_vector(int len)
     vector_t vec;
     vec.len = len;
     vec.arr = allocate_vec_arr(vec.len);
+
+    return vec;
 }
 matrix_t init_matrix(int row, int col)
 {
@@ -45,6 +46,8 @@ matrix_t init_matrix(int row, int col)
     mat.row = row;
     mat.col = col;
     mat.arr = allocate_mat_arr(mat.row, mat.col);
+
+    return mat;
 }
 
 void free_vector(vector_t *vec)
@@ -75,30 +78,30 @@ vector_t *allocate_vec()
     return malloc(sizeof(vector_t));
 }
 
-void multiply(vector_t *result, matrix_t *mat, vector_t *vec)
+void multiply_mat_vec(vector_t *out, matrix_t *mat, vector_t *vec)
 {
     for (int i = 0; i < mat->row; i++)
     {
         for (int j = 0; j < mat->col; j++)
         {
-            result->arr[i] += mat->arr[j + i * mat->col] * vec->arr[j];
+            out->arr[i] += mat->arr[j + i * mat->col] * vec->arr[j];
         }
     }
 }
 
-void add(vector_t *result, vector_t *v1, vector_t *v2)
+void add_vec(vector_t *out, vector_t *v1, vector_t *v2)
 {
-    for (int i = 0; i < result->len; i++)
+    for (int i = 0; i < out->len; i++)
     {
-        result->arr[i] = v1->arr[i] + v2->arr[i];
+        out->arr[i] = v1->arr[i] + v2->arr[i];
     }
 }
 
-void subtract(vector_t *result, vector_t *v1, vector_t *v2)
+void subtract_vec(vector_t *out, vector_t *v1, vector_t *v2)
 {
-    for (int i = 0; i < result->len; i++)
+    for (int i = 0; i < out->len; i++)
     {
-        result->arr[i] = v1->arr[i] - v2->arr[i];
+        out->arr[i] = v1->arr[i] - v2->arr[i];
     }
 }
 
@@ -107,99 +110,140 @@ double sigmoid(double val)
     return 1 / (1 + exp(-1 * val));
 }
 
-void sigmoid_matrix(matrix_t *result, matrix_t* mat)
+void sigmoid_mat(matrix_t *out, matrix_t* mat)
 {
     for (int i = 0; i < mat->row; i++)
     {
         for (int j = 0; j < mat->col; j++)
         {
-            result->arr[j + i * result->col] = sigmoid(mat->arr[j + i*mat->col]);
+            out->arr[j + i * out->col] = sigmoid(mat->arr[j + i*mat->col]);
         }
     }
 }
 
-void dsigmoid_matrix(matrix_t *result, matrix_t* mat)
+void dsigmoid_mat(matrix_t *out, matrix_t* mat)
 {
     for (int i = 0; i < mat->row; i++)
     {
         for (int j = 0; j < mat->col; j++)
         {
             double sig = sigmoid(mat->arr[j + i * mat->col]);
-            result->arr[j + i * result->col] = sig * (1 - sig);
+            out->arr[j + i * out->col] = sig * (1 - sig);
         }
     }
 }
 
-void sigmoid_vector(vector_t *result, vector_t* vec)
+void sigmoid_vec(vector_t *out, vector_t* vec)
 {
-    for (int i = 0; i < result->len; i++)
+    for (int i = 0; i < out->len; i++)
     {
-        result->arr[i] = sigmoid(vec->arr[i]);
+        out->arr[i] = sigmoid(vec->arr[i]);
     }
 }
 
-void dsigmoid_vector(vector_t *result, vector_t* vec)
+void dsigmoid_vec(vector_t *out, vector_t* vec)
 {
-    for (int i = 0; i < result->len; i++)
+    for (int i = 0; i < out->len; i++)
     {
         double sig = sigmoid(vec->arr[i]);
-        result->arr[i] = sig * (1 - sig);
+        out->arr[i] = sig * (1 - sig);
     }
 }
 
-void hadamard_product(vector_t *result, vector_t *vec1, vector_t *vec2)
+void hadamard_product(vector_t *out, vector_t *vec1, vector_t *vec2)
 {
-    for (int i = 0; i < result->len; i++)
+    for (int i = 0; i < out->len; i++)
     {
-        result->arr[i] = vec1->arr[i] * vec2->arr[i];
+        out->arr[i] = vec1->arr[i] * vec2->arr[i];
     }
 }
 
-void output_error(vector_t *result,
+void output_error(vector_t *out,
                   vector_t *expected_output, 
                   vector_t *last_layer_activations, 
                   vector_t *last_layer_weighted)
 {
     vector_t llw_dsig = init_vector(last_layer_weighted->len);
-    dsigmoid_vector(&llw_dsig, last_layer_weighted);
+    dsigmoid_vec(&llw_dsig, last_layer_weighted);
 
     vector_t error = init_vector(last_layer_activations->len);
-    subtract(&error, last_layer_activations, expected_output);
+    subtract_vec(&error, last_layer_activations, expected_output);
 
-    hadamard_product(result, &error, &llw_dsig);
+    hadamard_product(out, &error, &llw_dsig);
 
     free_vector(&llw_dsig);
     free_vector(&error);
 }
 
-void layer_error(vector_t *result, 
-                          matrix_t *next_layer_weights,
-                          vector_t *next_layer_error,
-                          vector_t *current_layer_weighted)
+void layer_error(vector_t *out, 
+                 matrix_t *next_layer_weights,
+                 vector_t *next_layer_error,
+                 vector_t *current_layer_weighted)
 {
     vector_t clw_dsig = init_vector(current_layer_weighted->len);
-    dsigmoid_vector(&clw_dsig, current_layer_weighted);
+    dsigmoid_vec(&clw_dsig, current_layer_weighted);
 
     matrix_t nlwT = init_matrix(next_layer_weights->col, next_layer_weights->row);
     transpose(&nlwT, next_layer_weights);
 
     vector_t product = init_vector(nlwT.row);
-    multiply(&product, &nlwT, next_layer_error);
+    multiply_mat_vec(&product, &nlwT, next_layer_error);
 
-    hadamard_product(result, &product, &clw_dsig);
+    hadamard_product(out, &product, &clw_dsig);
 
     free_vector(&clw_dsig);
     free_matrix(&nlwT);
     free_vector(&product);
 }
 
-void transpose(matrix_t *result, matrix_t* mat)
+void transpose(matrix_t *out, matrix_t* mat)
 {
-    for (int i = 0; i < result->row; i++)
+    for (int i = 0; i < out->row; i++)
     {
-        for (int j = 0; j < result->col; j++)
+        for (int j = 0; j < out->col; j++)
         {
-            result->arr[j + i * result->col] = mat->arr[i + j * mat->col];
+            out->arr[j + i * out->col] = mat->arr[i + j * mat->col];
         }
+    }
+}
+
+void multiply_vec_vec(matrix_t *out, vector_t *v1, vector_t *v2)
+{
+    for (int i = 0; i < out->row; i++)
+    {
+        for (int j = 0; j < out->col; j++)
+        {
+            out->arr[j + i * out->col] = v1->arr[j] * v2->arr[i];
+        }
+    }
+}
+
+void scalar_multiply_mat(matrix_t *out, matrix_t *mat, double scalar)
+{
+    for (int i = 0; i < out->row; i++)
+    {
+        for (int j = 0; j < out->col; j++)
+        {
+            out->arr[j + i * out->col] = mat->arr[j + i * mat->col] * scalar;
+        }
+    }
+}
+
+void subtract_mat(matrix_t *out, matrix_t *mat1, matrix_t *mat2)
+{
+    for (int i = 0; i < out->row; i++)
+    {
+        for (int j = 0; j < out->col; j++)
+        {
+            out->arr[j + i * out->col] = mat1->arr[j + i * mat1->col] - mat2->arr[j + i * mat2->col];
+        }
+    }
+}
+
+void scalar_multiply_vec(vector_t *out, vector_t *vec, double scalar)
+{
+    for (int i = 0; i < out->len; i++)
+    {
+        out->arr[i] = vec->arr[i] * scalar;
     }
 }

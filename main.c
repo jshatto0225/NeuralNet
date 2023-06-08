@@ -3,131 +3,120 @@
 #include <stdlib.h>
 #include <math.h>
 #include "dataset.h"
+#include "mnist.h"
 
-
-#define INPUT_SIZE 1
-#define HIDDEN_SIZE 2
-#define OUTPUT_SIZE 1
-/*
-
-#define INPUT_SIZE 40
-#define HIDDEN_SIZE 10
-#define OUTPUT_SIZE 40
-
-int main()
+void load_mnist_matrix_vector(matrix_t *x_train, matrix_t *y_train, matrix_t *x_test, matrix_t *y_test)
 {
-
-    network *net;
-
-    int sizes[] = {2, 5, 10, 11, 1};
-
-    allocate_neural_net(5, sizes, &net);
-
-
-
-
-
-
-    //making each layer, weight, and bias
-    layer_t input, hidden1, hidden2, output;
-    matrix_t weights1, weights2, weights3, weights4;
-    vector_t bias1, bias2, bias3, bias4;
-    vector_t nodes1, nodes2, nodes3, nodes4;
-    vector_t activ1, activ2, activ3, activ4;
-
-    double *X_train = x_train();
-    double *Y_train = y_train(X_train);
-    
-    //initalizing them
-    init_layer(&input, INPUT_SIZE,HIDDEN_SIZE, &weights1, &bias1, &nodes1, &activ1);
-    init_layer(&hidden1, HIDDEN_SIZE,HIDDEN_SIZE, &weights2, &bias2, &nodes2, &activ2);
-    init_layer(&hidden2, HIDDEN_SIZE,OUTPUT_SIZE, &weights3, &bias3, &nodes3, &activ3);
-    init_layer(&output, OUTPUT_SIZE,0, &weights4, &bias4,&nodes4, &activ4);
-
-
-    // printf("Weights:\n");
-    matrix_t matrix = weights1;
-    vector_t vector = activ4;
-
-
-
-    //"inputting first layer"
-        for (int i = 0; i < 40; i++)
+    for (int i = 0; i < NUM_TRAIN; i++)
+    {
+        for (int j = 0; j < SIZE; j++)
         {
-            nodes1.arr[i] = X_train[i];
+            x_train->arr[i * SIZE + j] = train_image[i][j];
         }
-
-
-    layer_t* layers = malloc(4*sizeof(layer_t));
-    layers[0] = input;
-    layers[1] = hidden1;
-    layers[2] = hidden2;
-    layers[3] = output;
- 
-
-    //training loop
-    int epochs = 99;
-    for (int epoch = 0; epoch < epochs; epoch++)
-    {
-        activation(layers, 4);
-
-    }   
-
-    
-    for (int i = 0; i < 10; i++)
-    {
-        printf("%lf\n", nodes4.arr[i]);
     }
 
+    for (int i = 0; i < NUM_TEST; i++)
+    {
+        for (int j = 0; j < SIZE; j++)
+        {
+            x_test->arr[i * SIZE + j] = test_image[i][j];
+        }
+    }
 
-    
-    
-    // for (int i = 0; i < matrix.row; i++)
-    // {
-    //     for (int j = 0; j < matrix.col; j++)
-    //     {
-    //         printf("%.2lf, ", matrix.arr[j + i * matrix.col]);
-    //     }
-    //     printf("\n");
-    // }
-    // printf("Weights dim: %d X %d\n", matrix.row, matrix.col);
+    for (int i = 0; i < NUM_TRAIN; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            if(train_label[i] == j)
+            {
+                y_train->arr[i * 10 + j] = 1;
+            }
+            else
+            {
+                y_train->arr[i * 10 + j] = 0;
+            }
+        }
+    }
 
-    // printf("Biases:\n");
-    //     for (int i = 0; i < vector.len; i++)
-    //     {
-    //         printf("%.2lf\n", vector.arr[i]);
-    //     }
-    // printf("Bias dim: %d\n", vector.len);
-    
-
-    //freeing allocated space
-    free_layer(&weights1, &bias1, &nodes1, &activ1);
-    free_layer(&weights2, &bias2, &nodes2, &activ2);
-    free_layer(&weights3, &bias3, &nodes3, &activ3);
-    free_layer(&weights4, &bias4, &nodes4, &activ4);
-    free(layers);
-    free(X_train);
-    free(Y_train);
-
-
-    printf("Your code has no errors!\n");
-    return 0;
+    for (int i = 0; i < NUM_TEST; i++)
+    {
+        for (int j = 0; j < 10; j++)
+        {
+            if(test_label[i] == j)
+            {
+                y_test->arr[i * 10 + j] = 1;
+            }
+            else
+            {
+                y_test->arr[i * 10 + j] = 0;
+            }
+        }
+    }
 }
-*/
+
 
 int main()
 {
-    network net;
+    srand(time(NULL));
+    printf("Time: %ld\n", time(NULL));
 
-    int sizes[] = {1, 2, 1, 1};
-    int layers = 4;
+    int sizes[] = {784, 16, 16, 10};
 
-    allocate_neural_net(layers, sizes, &net);
-    printf("allocated\n");
+    load_mnist();
 
-    free_network(layers, &net);
+    neural_net_t net = allocate_neural_net(4, sizes);
+    printf("Allocated Network\n");
+
+    // TODO: Shuffle data
+    matrix_t x_train = init_matrix(NUM_TRAIN, SIZE);
+    matrix_t y_train = init_matrix(NUM_TRAIN, 10);
+
+    matrix_t x_test = init_matrix(NUM_TEST, SIZE);
+    matrix_t y_test = init_matrix(NUM_TRAIN, 10);
+
+    matrix_t test_input = init_matrix(1, SIZE);
+    matrix_t test_output = init_matrix(1, 10);
+
+    load_mnist_matrix_vector(&x_train, &y_train, &x_test, &y_test);
+    printf("Loaded MNIST\n");
+
+    printf("Training...\n");
+    train(&net, &x_train, &y_train, 30, 10, 0.8, &x_test, &y_test);
+    printf("Trained\n");
+
+    free_network(&net);
+    free_matrix(&x_train);
+    free_matrix(&y_train);
+    free_matrix(&x_test);
+    free_matrix(&y_test);
 
     printf("freed\n");
 
     return 0;
 }
+
+/*
+int main()
+{
+    matrix_t mat = init_matrix(3, 4);
+    mat.arr[0] = 1;
+    mat.arr[1] = 2; 
+    mat.arr[2] = 3
+    mat.arr[3] = 4;
+    mat.arr[4] = 5;
+    mat.arr[5] = 6;
+    mat.arr[6] = 7;
+    mat.arr[7] = 8;
+    mat.arr[8] = 9;
+    mat.arr[9] = 10;
+    mat.arr[10] = 11;
+    mat.arr[11] = 12;
+
+    matrix_t mat2 = init_matrix(4, 3);
+
+    transpose(&mat2, &mat);
+
+    print_matrix(&mat2);
+
+    return 0;
+}*/

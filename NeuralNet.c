@@ -3,237 +3,95 @@
 #include <stdlib.h>
 #include <math.h>
 
-
-void allocate_neural_net(int layers, int* layer_sizes, layer_t** network)
+neural_net_t allocate_neural_net(int layers, int* layer_sizes)
 {
-    *network = (struct layer*)malloc(sizeof(layer_t) * layers);
+    neural_net_t new_net;
+    new_net.num_layers = layers;
 
+    new_net.layers = (layer_t *)malloc(sizeof(layer_t) * layers);
 
-    for(int i = 0; i < layers; i++)
+    for (int i = 0; i < new_net.num_layers; i++)
     {
-        layer_t new_layer;
-
-        if(i > 0)
-        {
-            new_layer.random_weights.row = layer_sizes[i];
-            new_layer.random_weights.col = layer_sizes[i - 1];
-            new_layer.random_weights.arr = (double*)malloc(sizeof(double) * new_layer.random_weights.row * new_layer.random_weights.col);
-
-            for (int i = 0; i < new_layer.random_weights.row; i++)
-            {
-                for (int j = 0; j < new_layer.random_weights.col; j++)
-                {
-                    //random vals between [0,1)
-                    new_layer.random_weights.arr[j + i * new_layer.random_weights.col] = (double)(rand() / (RAND_MAX+ 1.0));
-                }
-            }
-
-        }
-        
-        new_layer.random_bias.len = layer_sizes[i];
-        new_layer.random_bias.arr = (double*)malloc(sizeof(double) * new_layer.random_bias.len);
-        for(int i = 0; i < new_layer.random_bias.len; i++)
-        {
-            new_layer.random_bias.arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
-        }
-
-        new_layer.weighted_outputs.len = layer_sizes[i];
-        new_layer.weighted_outputs.arr = (double*)malloc(sizeof(double) * new_layer.weighted_outputs.len);
-        for(int i = 0; i < new_layer.weighted_outputs.len; i++)
-        {
-            new_layer.weighted_outputs.arr[i] = 0;
-        }
-
-        new_layer.activated_outputs.len = layer_sizes[i];
-        new_layer.activated_outputs.arr = (double*)malloc(sizeof(double) * new_layer.activated_outputs.len);
-        for(int i = 0; i < new_layer.activated_outputs.len; i++)
-        {
-            new_layer.activated_outputs.arr[i] = 0;
-        }
-
-        new_layer.error.len = layer_sizes[i];
-        new_layer.error.arr = (double*)malloc(sizeof(double) * new_layer.error.len);
-        for(int i = 0; i < new_layer.error.len; i++)
-        {
-            new_layer.error.arr[i] = 0;
-        }
-
-        (*network + i)->random_weights = new_layer.random_weights;
-        (*network + i)->random_bias = new_layer.random_bias;
-        (*network + i)->weighted_outputs = new_layer.weighted_outputs;
-        (*network + i)->activated_outputs = new_layer.activated_outputs;
-        (*network + i)->length = layer_sizes[i];
-        (*network + i)->error = new_layer.error;
-
+        if(i == 0)
+            new_net.layers[i] = init_layer(layer_sizes[i], 1);
+        else
+            new_net.layers[i] = init_layer(layer_sizes[i], layer_sizes[i - 1]);
     }
+
+    return new_net;
 }
-/*
 
-
-void allocate_neural_net(int layers, int* layer_sizes, struct layer** network)
+void free_network(neural_net_t *network)
 {
-    *network = (struct layer*)malloc(sizeof(struct layer) * layers);
-
-
-    for(int i = 0; i < layers; i++)
+    for(int i = 0; i < network->num_layers; i++)
     {
-        struct layer new_layer;
-
-        if(i > 0)
-        {
-            new_layer.random_weights.row = layer_sizes[i];
-            new_layer.random_weights.col = layer_sizes[i - 1];
-            new_layer.random_weights.arr = (double*)malloc(sizeof(double) * new_layer.random_weights.row * new_layer.random_weights.col);
-
-            for (int i = 0; i < new_layer.random_weights.row; i++)
-            {
-                for (int j = 0; j < new_layer.random_weights.col; j++)
-                {
-                    //random vals between [0,1)
-                    new_layer.random_weights.arr[j + i * new_layer.random_weights.col] = (double)(rand() / (RAND_MAX+ 1.0));
-                }
-            }
-
-        }
-        
-        new_layer.random_bias.len = layer_sizes[i];
-        new_layer.random_bias.arr = (double*)malloc(sizeof(double) * new_layer.random_bias.len);
-        for(int i = 0; i < new_layer.random_bias.len; i++)
-        {
-            new_layer.random_bias.arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
-        }
-
-        new_layer.weighted_outputs.len = layer_sizes[i];
-        new_layer.weighted_outputs.arr = (double*)malloc(sizeof(double) * new_layer.weighted_outputs.len);
-        for(int i = 0; i < new_layer.weighted_outputs.len; i++)
-        {
-            new_layer.weighted_outputs.arr[i] = 0;
-        }
-
-        new_layer.activated_outputs.len = layer_sizes[i];
-        new_layer.activated_outputs.arr = (double*)malloc(sizeof(double) * new_layer.activated_outputs.len);
-        for(int i = 0; i < new_layer.activated_outputs.len; i++)
-        {
-            new_layer.activated_outputs.arr[i] = 0;
-        }
-
-        new_layer.error.len = layer_sizes[i];
-        new_layer.error.arr = (double*)malloc(sizeof(double) * new_layer.error.len);
-        for(int i = 0; i < new_layer.error.len; i++)
-        {
-            new_layer.error.arr[i] = 0;
-        }
-
-        (*network + i)->random_weights = new_layer.random_weights;
-        (*network + i)->random_bias = new_layer.random_bias;
-        (*network + i)->weighted_outputs = new_layer.weighted_outputs;
-        (*network + i)->activated_outputs = new_layer.activated_outputs;
-        (*network + i)->length = layer_sizes[i];
-        (*network + i)->error = new_layer.error;
-
+        free_layer(&network->layers[i]);
     }
+    free(network->layers);
 }
-/*
 
-
-void init_layer(layer_t* layer, int input, int output, matrix_t *weights, vector_t *biases, vector_t *nodes, vector_t *active)
+void free_layer(layer_t* layer)
 {
+    free_matrix(&layer->weights);
+    free_vector(&layer->biases);
+    free_vector(&layer->weighted_outputs);
+    free_vector(&layer->activated_outputs);
+    free_vector(&layer->error);
+}
 
-    //init the inputs and outputs of layer
-    layer->input = input;
-    layer->output = output;    
+layer_t init_layer(int length, int previous_layer_length)
+{
+    layer_t out;
+    out.length = length;
 
     //defining the rows and columns of random-weight matrix
-    weights->col = input;
-    weights->row = output;
+    out.weights = init_matrix(length, previous_layer_length);
 
-
-    //allocating space for the weight matrix rows & cols
-    weights->arr = allocate_mat_arr(input, output);
-
-    for (int i = 0; i < weights->row; i++)
+    for (int i = 0; i < out.weights.row; i++)
     {
-        for (int j = 0; j < input; j++)
+        for (int j = 0; j < out.weights.col; j++)
         {
             //random vals between [0,1)
-            weights->arr[j + i * weights->col] = (double)(rand() / (RAND_MAX+ 1.0));
+            out.weights.arr[j + i * out.weights.col] = (double)((double)rand() / (RAND_MAX / 2)) - 1;
         }
     }
 
     //init the size of vector
-    biases->len = output;
-
-    //if its the last layer
-    if (output == 0)
-    {
-        biases->len = input;
-    }
-    //init the bias vector
-    biases->arr = allocate_vec_arr(biases->len);
+    out.biases = init_vector(length);
     
     //allocating random doubles to bias
-    for (int i = 0; i < biases->len; i++)
+    for (int i = 0; i < out.biases.len; i++)
     {   
         //random biases from [0, 1)
-        biases->arr[i] = (double)(rand() / (RAND_MAX+ 1.0));
+        out.biases.arr[i] = (double)(rand() / (RAND_MAX / 2)) - 1;
     }
-    
-    //allocating space for nodes
 
-    nodes->len = input;
-    nodes->arr = calloc(input, sizeof(double));
+    out.activated_outputs = init_vector(length);
+    out.weighted_outputs = init_vector(length);
 
-    active->len = input;
-    active->arr = calloc(input, sizeof(double));
+    out.error = init_vector(length);
 
-
-    layer->nodes = *nodes;
-    layer->activation = *active;
-    layer->random_weights = weights;
-    layer->random_bias = biases;
+    return out;
 }
 
-*/
-void free_network(int layers, layer_t** network)
+void feed_forward(layer_t *current_layer, layer_t *previous_layer)
 {
-    for(int i = 0; i < layers; i++)
-    {
-        free((*network + i)->random_weights.arr);
-        free((*network + i)->random_bias.arr);
-        free((*network + i)->weighted_outputs.arr);
-        free((*network + i)->activated_outputs.arr);
-        free((*network + i)->error.arr);
-    }
-    free(*network);
-}
-
-void forward(vector_t *result, layer_t *input)
-{
-    // TODO: find length of weight_inputs
-    vector_t weight_inputs;
-    weight_inputs.len = input->random_weights.row;
-    weight_inputs.arr = allocate_vec_arr(input->random_weights.row);
+    vector_t weight_inputs = init_vector(current_layer->weights.row);
 
     //example for second layer, [16x10][10x1]+[16x1]
-    multiply(&weight_inputs, &input->random_weights, &input->weighted_outputs);
+    multiply_mat_vec(&weight_inputs, &current_layer->weights, &previous_layer->activated_outputs);
 
-    add(result, &weight_inputs, &input->random_bias);
+    add_vec(&current_layer->weighted_outputs, &weight_inputs, &current_layer->biases);
 
     free_vector(&weight_inputs);
 }
 
-void activation(layer_t *input, int length)
+void forward_pass(neural_net_t *network)
 {
-    int i = 0;
-    while (i < length)
+    for (int i = 1; i < network->num_layers; i++)
     {
-        //make sure its not the first layer bc it already has iputs
-        if(i != 0)
-        {
-            forward(&input[i].weighted_outputs, &input[i-1]);
-            sigmoid_vector(&input[i].activated_outputs, &input[i].weighted_outputs);
-        }
-        i++;
+        feed_forward(&network->layers[i], &network->layers[i - 1]);
+        sigmoid_vec(&network->layers[i].activated_outputs, &network->layers[i].weighted_outputs);
     }
 }
 
@@ -247,3 +105,129 @@ double loss_function(vector_t *predict, vector_t *actual)
     return sum / predict->len;
 }
 
+void backward_pass(neural_net_t *network, vector_t *expected_outputs)
+{
+    for (int i = network->num_layers - 1; i > 0; i--)
+    {
+        if (i == network->num_layers - 1)
+        {
+            vector_t cost_derivative = init_vector(network->layers[i].length);
+            subtract_vec(&cost_derivative, &network->layers[i].activated_outputs, expected_outputs);
+            vector_t sigmoid_derivative = init_vector(network->layers[i].length);
+            dsigmoid_vec(&sigmoid_derivative, &network->layers[i].weighted_outputs);
+
+            hadamard_product(&network->layers[i].error, &cost_derivative, &sigmoid_derivative);
+
+            free_vector(&cost_derivative);
+            free_vector(&sigmoid_derivative);
+        }
+        else
+        {
+            matrix_t weights_transpose = init_matrix(network->layers[i + 1].weights.col, network->layers[i + 1].weights.row);
+            transpose(&weights_transpose, &network->layers[i + 1].weights);
+            vector_t error_product = init_vector(weights_transpose.row);
+            multiply_mat_vec(&error_product, &weights_transpose, &network->layers[i + 1].error);
+
+            vector_t sigmoid_derivative = init_vector(network->layers[i].length);
+            dsigmoid_vec(&sigmoid_derivative, &network->layers[i].weighted_outputs);
+
+            hadamard_product(&network->layers[i].error, &error_product, &sigmoid_derivative);
+
+            free_matrix(&weights_transpose);
+            free_vector(&error_product);
+            free_vector(&sigmoid_derivative);
+        }
+    }
+}
+
+void train(neural_net_t *network, matrix_t *inputs, matrix_t *expected_outputs, 
+           int epochs, int batch_size, double learning_rate,
+           matrix_t *test_inputs, matrix_t *test_expected_outputs)
+{
+    for (int i = 0; i < epochs; i++)
+    {
+        printf("Starting epoch %d\n", i);
+        // TODO: Implement batch training
+        for (int j = 0; j < inputs->row; j++)
+        {
+            for (int k = 0; k < inputs->col; k++)
+            {
+                network->layers[0].activated_outputs.arr[k] = inputs->arr[j * inputs->col + k];
+            }
+            vector_t expected_outputs2 = init_vector(10);
+            for (int i = 0; i < 10; i++)
+            {
+                expected_outputs2.arr[i] = expected_outputs->arr[j * expected_outputs->col + i];
+            }
+            forward_pass(network);
+            backward_pass(network, &expected_outputs2);
+            update_weights(network, learning_rate);
+        }
+    }
+    test(network, test_inputs, test_expected_outputs);
+}
+
+void update_weights(neural_net_t *network, double learning_rate)
+{
+    for (int i = network->num_layers - 1; i > 0; i--)
+    {
+        matrix_t weights_product = init_matrix(network->layers[i].error.len, network->layers[i - 1].activated_outputs.len);
+        multiply_vec_vec(&weights_product, &network->layers[i].error, &network->layers[i - 1].activated_outputs);
+        scalar_multiply_mat(&weights_product, &weights_product, learning_rate);
+        subtract_mat(&network->layers[i].weights, &network->layers[i].weights, &weights_product);
+
+        free_matrix(&weights_product);
+
+        vector_t bias_product = init_vector(network->layers[i].error.len);
+        scalar_multiply_vec(&bias_product, &network->layers[i].error, learning_rate);
+        subtract_vec(&network->layers[i].biases, &network->layers[i].biases, &bias_product);
+
+        free_vector(&bias_product);
+    }
+}
+
+void test(neural_net_t *network, matrix_t *inputs, matrix_t *expected_outputs)
+{
+    matrix_t network_output = init_matrix(inputs->row, inputs->col);
+    int sum = 0;
+    for (int i = 0; i < inputs->row; i++)
+    {
+        for (int j = 0; j < inputs->col; j++)
+        {
+            network->layers[0].activated_outputs.arr[j] = inputs->arr[i * inputs->col + j];
+        }
+        forward_pass(network);
+        int max_index = 0;
+        for (int j = 0; j < network->layers[network->num_layers - 1].activated_outputs.len; j++)
+        {
+            if (network->layers[network->num_layers - 1].activated_outputs.arr[j] > network->layers[network->num_layers - 1].activated_outputs.arr[max_index])
+            {
+                max_index = j;
+            }
+        }
+        if(expected_outputs->arr[i * expected_outputs->col + max_index] == 1)
+        {
+            sum++;
+        }
+    }
+    printf("Accuracy: %d / 10000\n", sum);
+}
+
+void print_matrix(matrix_t *mat)
+{
+    for (int i = 0; i < mat->row; i++)
+    {
+        for (int j = 0; j < mat->col; j++)
+        {
+            printf("%lf, ", mat->arr[j + i * mat->col]);
+        }
+        printf("\n");
+    }
+}
+void print_vector(vector_t *vec)
+{
+    for (int i = 0; i < vec->len; i++)
+    {
+        printf("%lf\n", vec->arr[i]);
+    }
+}
