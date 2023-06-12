@@ -4,92 +4,98 @@
 #include <math.h>
 #include "dataset.h"
 #include "mnist.h"
+#include <omp.h>
 
-void load_mnist_matrix_vector(matrix_t *x_train, matrix_t *y_train, matrix_t *x_test, matrix_t *y_test)
+/**
+ * @brief Function to initialize the training data from the MNIST dataset
+ *
+ * @return dataset_t The training data
+ */
+dataset_t init_train_data()
 {
-    for (int i = 0; i < NUM_TRAIN; i++)
-    {
-        for (int j = 0; j < SIZE; j++)
-        {
-            x_train->arr[i * SIZE + j] = train_image[i][j];
-        }
-    }
-
-    for (int i = 0; i < NUM_TEST; i++)
-    {
-        for (int j = 0; j < SIZE; j++)
-        {
-            x_test->arr[i * SIZE + j] = test_image[i][j];
-        }
-    }
+    dataset_t mnist_data;
+    mnist_data.num_examples = NUM_TRAIN;
+    mnist_data.examples = malloc(sizeof(example_t) * mnist_data.num_examples);
 
     for (int i = 0; i < NUM_TRAIN; i++)
     {
-        for (int j = 0; j < 10; j++)
+        mnist_data.examples[i].input = init_vector(SIZE);
+        mnist_data.examples[i].output = init_vector(10);
+        for (int j = 0; j < SIZE; j++)
         {
-            if(train_label[i] == j)
-            {
-                y_train->arr[i * 10 + j] = 1;
-            }
-            else
-            {
-                y_train->arr[i * 10 + j] = 0;
-            }
+            mnist_data.examples[i].input.arr[j] = train_image[i][j];
         }
+        mnist_data.examples[i].output.arr[train_label[i]] = 1;
     }
-
-    for (int i = 0; i < NUM_TEST; i++)
-    {
-        for (int j = 0; j < 10; j++)
-        {
-            if(test_label[i] == j)
-            {
-                y_test->arr[i * 10 + j] = 1;
-            }
-            else
-            {
-                y_test->arr[i * 10 + j] = 0;
-            }
-        }
-    }
+    return mnist_data;
 }
 
+/**
+ * @brief Function to initialize the test data from the MNIST dataset
+ *
+ * @return dataset_t The test data
+ */
+dataset_t init_test_data()
+{
+    dataset_t mnist_data;
+    mnist_data.num_examples = NUM_TEST;
+    mnist_data.examples = malloc(sizeof(example_t) * mnist_data.num_examples);
+
+    for (int i = 0; i < NUM_TEST; i++)
+    {
+        mnist_data.examples[i].input = init_vector(SIZE);
+        mnist_data.examples[i].output = init_vector(10);
+        for (int j = 0; j < SIZE; j++)
+        {
+            mnist_data.examples[i].input.arr[j] = test_image[i][j];
+        }
+        mnist_data.examples[i].output.arr[test_label[i]] = 1;
+    }
+    return mnist_data;
+}
+
+/**
+ * @brief Function to free a dataset
+ *
+ * @param dataset The dataset to free
+ */
+void free_dataset(dataset_t *dataset)
+{
+    for (int i = 0; i < dataset->num_examples; i++)
+    {
+        free_vector(&dataset->examples[i].input);
+        free_vector(&dataset->examples[i].output);
+    }
+    free(dataset->examples);
+}
 
 int main()
 {
+    // Seed random number generator
     srand(time(NULL));
 
+    // Network architecture
     int sizes[] = {784, 30, 10};
 
+    // Load MNIST dataset
     load_mnist();
 
-    neural_net_t net = allocate_neural_net(3, sizes);
+    // Allocate network
+    neural_net_t net = allocate_neural_net(sizeof(sizes) / sizeof(int), sizes);
     printf("Allocated Network\n");
 
-    // TODO: Shuffle data
-    matrix_t x_train = init_matrix(NUM_TRAIN, SIZE);
-    matrix_t y_train = init_matrix(NUM_TRAIN, 10);
+    // Initialize training and test data
+    dataset_t train_data = init_train_data();
+    dataset_t test_data = init_test_data();
+    printf("Initialized Data\n");
 
-    matrix_t x_test = init_matrix(NUM_TEST, SIZE);
-    matrix_t y_test = init_matrix(NUM_TRAIN, 10);
+    // Train network
+    train(&net, &train_data, &test_data, 30, 10, 3.0);
 
-    matrix_t test_input = init_matrix(1, SIZE);
-    matrix_t test_output = init_matrix(1, 10);
-
-    load_mnist_matrix_vector(&x_train, &y_train, &x_test, &y_test);
-    printf("Loaded MNIST\n");
-
-    printf("\nTraining...\n");
-    train(&net, &x_train, &y_train, 3, 10, 3.0, &x_test, &y_test);
-    printf("Trained\n");
-
+    // Free data and network
+    free_dataset(&train_data);
+    free_dataset(&test_data);
     free_network(&net);
-    free_matrix(&x_train);
-    free_matrix(&y_train);
-    free_matrix(&x_test);
-    free_matrix(&y_test);
-
-    printf("freed\n");
 
     return 0;
 }
@@ -97,25 +103,42 @@ int main()
 /*
 int main()
 {
-    matrix_t mat = init_matrix(3, 4);
-    mat.arr[0] = 1;
-    mat.arr[1] = 2; 
-    mat.arr[2] = 3
-    mat.arr[3] = 4;
-    mat.arr[4] = 5;
-    mat.arr[5] = 6;
-    mat.arr[6] = 7;
-    mat.arr[7] = 8;
-    mat.arr[8] = 9;
-    mat.arr[9] = 10;
-    mat.arr[10] = 11;
-    mat.arr[11] = 12;
+    srand(time(NULL));
 
-    matrix_t mat2 = init_matrix(4, 3);
+    srand(time(NULL));
 
-    transpose(&mat2, &mat);
+    int sizes[] = {784, 64, 64, 10};
 
-    print_matrix(&mat2);
+    load_mnist();
+
+    neural_net_t net = allocate_neural_net(sizeof(sizes) / sizeof(int), sizes);
+    printf("Allocated Network\n");
+
+    // TODO: Shuffle data
+    matrix_t x_train = init_matrix(NUM_TRAIN, SIZE);
+    matrix_t y_train = init_matrix(NUM_TRAIN, 10);
+
+    matrix_t x_test = init_matrix(NUM_TEST, SIZE);
+    matrix_t y_test = init_matrix(NUM_TEST, 10);
+
+    matrix_t test_input = init_matrix(1, SIZE);
+    matrix_t test_output = init_matrix(1, 10);
+
+    load_mnist_matrix_vector(&x_train, &y_train, &x_test, &y_test);
+
+    matrix_t test = init_matrix(1, SIZE);
+    matrix_t test2 = init_matrix(1, 10);
+
+    for (int i = 0; i < SIZE; i++)
+    {
+        test.arr[i] = x_train.arr[i];
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        test2.arr[i] = y_train.arr[i];
+    }
+
+    train(&net, &test, &test2, 1, 1, 0.1, &x_test, &y_test);
 
     return 0;
 }*/
